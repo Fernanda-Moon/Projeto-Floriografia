@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Floriografia — A Linguagem das Flores.">
+<meta name="theme-color" content="#0f0510">
+<title>Floriografia — A Linguagem das Flores</title>
+
+<link rel="icon" type="image/png" href="assets/Floriografia_logo.png">
+<link rel="apple-touch-icon" href="assets/Floriografia_logo.png">
+<link rel="shortcut icon" type="image/png" href="assets/Floriografia_logo.png">
+<link rel="manifest" href="/manifest.json">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
+<link rel="preload" as="image" href="assets/fundo_inicio.png">
+<link rel="preload" as="image" href="assets/personagens_inicio.png">
+<link rel="preload" as="image" href="assets/Floriografia_logo.png">
+
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ═══════════════════ PORTAL — Grimório ═══════════════════ -->
+<div class="portal" id="portal">
+
+  <div class="portal-sky" aria-hidden="true"></div>
+
+  <div class="portal-stars" aria-hidden="true">
+    <span style="--x:8%;  --y:14%; --d:0s;   --s:3px"></span>
+    <span style="--x:18%; --y:30%; --d:1.2s; --s:2px"></span>
+    <span style="--x:28%; --y:10%; --d:2.4s; --s:3px"></span>
+    <span style="--x:40%; --y:22%; --d:0.6s; --s:2px"></span>
+    <span style="--x:55%; --y:12%; --d:1.8s; --s:3px"></span>
+    <span style="--x:68%; --y:26%; --d:3.0s; --s:2px"></span>
+    <span style="--x:78%; --y:8%;  --d:0.9s; --s:3px"></span>
+    <span style="--x:88%; --y:20%; --d:2.1s; --s:2px"></span>
+    <span style="--x:12%; --y:60%; --d:1.4s; --s:2px"></span>
+    <span style="--x:92%; --y:66%; --d:0.3s; --s:2px"></span>
+  </div>
+
+  <div class="portal-mist" aria-hidden="true"></div>
+
+  <div class="grimoire" id="grimoire" role="dialog" aria-label="Abrir Floriografia">
+
+    <div class="grimoire-pages" id="grimoirePages">
+
+      <div class="page page-left">
+        <div class="page-inner">
+          <div class="page-ornament top">✦</div>
+          <img class="page-logo"
+               src="assets/Floriografia_logo.png"
+               alt="Floriografia"
+               onerror="this.style.display='none'">
+          <h2 class="page-title">Bem-vindo(a)</h2>
+          <p class="page-lore">
+            Antes de atravessar o jardim, diga seu nome<br>
+            às flores. Elas guardam cada segredo<br>
+            em pétalas silenciosas.
+          </p>
+          <p class="page-lore small">
+            <em>“Cada flor conta uma história.<br>
+            Qual será a sua?”</em>
+          </p>
+          <div class="page-ornament bottom">❦</div>
+        </div>
+      </div>
+
+      <div class="page page-right">
+        <div class="page-inner">
+          <div class="page-ornament top">✦</div>
+
+          <div class="page-tabs" role="tablist">
+            <button type="button" class="page-tab active ut-selectable" data-portal-tab="login" role="tab">ENTRAR</button>
+            <button type="button" class="page-tab ut-selectable" data-portal-tab="register" role="tab">CRIAR CONTA</button>
+          </div>
+
+          <div class="page-panel" data-portal-panel="login">
+            <h3 class="page-form-title">Entrar no Jardim</h3>
+            <p class="page-form-sub">Que bom te ver de novo.</p>
+
+            <label class="page-field">
+              <span>✦ E-mail</span>
+              <input class="page-input" id="portalLoginEmail" type="email" placeholder="voce@jardim.com" autocomplete="email">
+            </label>
+            <label class="page-field">
+              <span>✦ Senha</span>
+              <input class="page-input" id="portalLoginPass" type="password" placeholder="••••••" autocomplete="current-password">
+            </label>
+
+            <button class="page-submit ut-selectable" id="portalDoLogin" type="button">
+              <span class="heart">♥</span> ABRIR O JARDIM
+            </button>
+            <small class="page-msg" id="portalLoginMsg"></small>
+          </div>
+
+          <div class="page-panel" data-portal-panel="register" hidden>
+            <h3 class="page-form-title">Criar Conta</h3>
+            <p class="page-form-sub">Plante seu jardim no Floriografia.</p>
+
+            <label class="page-field">
+              <span>✦ Nome</span>
+              <input class="page-input" id="portalRegName" type="text" placeholder="Frisk" autocomplete="name">
+            </label>
+            <label class="page-field">
+              <span>✦ E-mail</span>
+              <input class="page-input" id="portalRegEmail" type="email" placeholder="voce@jardim.com" autocomplete="email">
+            </label>
+            <label class="page-field">
+              <span>✦ Senha (mín. 6)</span>
+              <input class="page-input" id="portalRegPass" type="password" placeholder="••••••" autocomplete="new-password">
+            </label>
+            <label class="page-field">
+              <span>✦ Confirmar senha</span>
+              <input class="page-input" id="portalRegPass2" type="password" placeholder="••••••" autocomplete="new-password">
+            </label>
+
+            <button class="page-submit ut-selectable" id="portalDoRegister" type="button">
+              <span class="heart">♥</span> PLANTAR MINHA CONTA
+            </button>
+            <small class="page-msg" id="portalRegisterMsg"></small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grimoire-cover" id="grimoireCover">
+      <div class="cover-half cover-left">
+        <div class="cover-texture"></div>
+      </div>
+      <div class="cover-half cover-right">
+        <div class="cover-texture"></div>
+      </div>
+
+      <div class="cover-front" id="coverFront">
+        <span class="cover-corner tl"></span>
+        <span class="cover-corner tr"></span>
+        <span class="cover-corner bl"></span>
+        <span class="cover-corner br"></span>
+
+        <div class="cover-emblem">✦</div>
+        <h1 class="cover-title">Floriografia</h1>
+        <p class="cover-sub">A Linguagem das Flores</p>
+
+        <button type="button" class="cover-open-btn ut-selectable" id="grimoireOpenBtn">
+          <span class="heart">♥</span> ABRIR O GRIMÓRIO
+        </button>
+        <span class="cover-hint">✦ toque para revelar ✦</span>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ═══════════════════ APP ═══════════════════ -->
+<div class="app" id="app">
+
+  <header class="topbar">
+    <span class="topbar-corner tl"></span>
+    <span class="topbar-corner tr"></span>
+    <span class="topbar-corner bl"></span>
+    <span class="topbar-corner br"></span>
+
+    <a class="brand" href="#inicio" data-route="inicio" aria-label="Floriografia — início">
+      <span class="brand-flowers" aria-hidden="true">🌸🌷</span>
+      <span class="brand-name">Floriografia</span>
+      <span class="brand-vines" aria-hidden="true"></span>
+    </a>
+
+    <nav class="desktop-nav" aria-label="Navegação principal">
+      <a href="#inicio"       class="nav-link active ut-selectable" data-route="inicio">      <span class="nav-ico">🏠</span>Início</a>
+      <a href="#flores"       class="nav-link ut-selectable"        data-route="flores">      <span class="nav-ico">🌸</span>Flores</a>
+      <a href="#significados" class="nav-link ut-selectable"        data-route="significados"><span class="nav-ico">🌸</span>Significados</a>
+      <a href="#ocasioes"     class="nav-link ut-selectable"        data-route="ocasioes">    <span class="nav-ico">🌸</span>Ocasiões</a>
+      <a href="#buque"        class="nav-link ut-selectable"        data-route="buque">       <span class="nav-ico">🌸</span>Criar Buquê</a>
+      <a href="#jardim"       class="nav-link ut-selectable"        data-route="jardim">      <span class="nav-ico">🌸</span>Meu Jardim</a>
+    </nav>
+
+    <div class="topbar-actions">
+      <button class="ut-btn ut-selectable admin-btn" id="adminBtn" type="button" hidden>
+        <span class="heart" aria-hidden="true">👑</span> Admin
+      </button>
+      <button class="ut-btn ut-selectable" id="enterBtn" type="button" hidden>
+        <span class="heart" aria-hidden="true">♥</span> Entrar
+      </button>
+      <button class="ut-btn ut-selectable avatar-btn" id="avatarBtn" type="button" hidden>
+        <span class="heart" aria-hidden="true">♥</span> Perfil
+      </button>
+      <button class="ut-btn ut-selectable menu-btn" id="menuBtn" type="button" aria-label="Abrir menu" aria-expanded="false">☰</button>
+    </div>
+  </header>
+
+  <nav class="mobile-nav ut-box" id="mobileNav" aria-label="Menu mobile">
+    <a href="#inicio"       data-route="inicio"       class="ut-selectable">* Início</a>
+    <a href="#flores"       data-route="flores"       class="ut-selectable">* Flores</a>
+    <a href="#significados" data-route="significados" class="ut-selectable">* Significados</a>
+    <a href="#ocasioes"     data-route="ocasioes"     class="ut-selectable">* Ocasiões</a>
+    <a href="#buque"        data-route="buque"        class="ut-selectable">* Criar Buquê</a>
+    <a href="#jardim"       data-route="jardim"       class="ut-selectable">* Meu Jardim</a>
+  </nav>
+
+  <main class="main">
+
+    <section class="view active" id="view-inicio">
+      <div class="hero-v3">
+        <div class="hero-banner">
+          <span class="banner-star">✦</span>
+          <span class="banner-text">A linguagem das flores</span>
+          <span class="banner-star">✦</span>
+        </div>
+
+        <div class="stars" aria-hidden="true">
+          <span style="--x:6%;  --y:12%; --d:0s;   --s:3px"></span>
+          <span style="--x:14%; --y:26%; --d:1.2s; --s:2px"></span>
+          <span style="--x:22%; --y:8%;  --d:2.4s; --s:3px"></span>
+          <span style="--x:34%; --y:22%; --d:0.6s; --s:2px"></span>
+          <span style="--x:46%; --y:14%; --d:1.8s; --s:3px"></span>
+          <span style="--x:58%; --y:26%; --d:3.0s; --s:2px"></span>
+          <span style="--x:70%; --y:10%; --d:0.9s; --s:3px"></span>
+          <span style="--x:80%; --y:22%; --d:2.1s; --s:2px"></span>
+          <span style="--x:90%; --y:14%; --d:1.4s; --s:3px"></span>
+          <span style="--x:96%; --y:28%; --d:0.3s; --s:2px"></span>
+          <span style="--x:8%;  --y:44%; --d:1.6s; --s:2px"></span>
+          <span style="--x:88%; --y:48%; --d:0.7s; --s:2px"></span>
+        </div>
+
+        <div class="petals" aria-hidden="true">
+          <span style="--x:8%;  --d:0s;   --dur:14s">🌸</span>
+          <span style="--x:22%; --d:3.2s; --dur:12s">🌷</span>
+          <span style="--x:38%; --d:6.5s; --dur:16s">💮</span>
+          <span style="--x:52%; --d:1.5s; --dur:13s">🌸</span>
+          <span style="--x:66%; --d:4.8s; --dur:15s">🌸</span>
+          <span style="--x:78%; --d:8.2s; --dur:11s">🌷</span>
+          <span style="--x:88%; --d:2.1s; --dur:14s">💮</span>
+          <span style="--x:95%; --d:5.6s; --dur:12s">🌸</span>
+        </div>
+
+        <div class="hero-wizards" aria-hidden="true">
+          <img src="assets/personagens_inicio.png" alt="">
+        </div>
+
+        <div class="hero-panel ut-selectable" tabindex="0">
+          <span class="hero-corner tl"></span>
+          <span class="hero-corner tr"></span>
+          <span class="hero-corner bl"></span>
+          <span class="hero-corner br"></span>
+
+          <span class="hero-badge">✦ A LINGUAGEM DAS FLORES ✦</span>
+          <h1 class="hero-heading">
+            Cada flor<br>
+            conta uma<br>
+            <em>história.</em>
+          </h1>
+          <p class="hero-sub">
+            Descubra o significado por trás de cada flor<br>
+            e transmita mensagens inesquecíveis.
+          </p>
+          <div class="hero-btns">
+            <button class="hero-cta primary ut-selectable" type="button" data-route="flores">
+              <span>🌸</span> EXPLORAR
+            </button>
+            <button class="hero-cta secondary ut-selectable" type="button" data-route="quiz">
+              <span>✦</span> QUIZ
+            </button>
+          </div>
+        </div>
+
+        <div class="hero-bubble ut-selectable" tabindex="0">
+          <span class="hero-corner tl"></span>
+          <span class="hero-corner tr"></span>
+          <span class="hero-corner bl"></span>
+          <span class="hero-corner br"></span>
+          <span class="bubble-line"><i class="bubble-star">✦</i> Que sentimento</span>
+          <span class="bubble-line">você deseja</span>
+          <span class="bubble-line">expressar? <i class="heart">♥</i></span>
+        </div>
+
+        <button class="save-point ut-selectable" type="button" data-save aria-label="Salvar">
+          <span class="save-star">★</span>
+        </button>
+
+        <div class="hero-flower-row" aria-hidden="true">
+          <span>🌷</span>
+          <span>🌻</span>
+          <span>🌹</span>
+          <span>🌸</span>
+          <span>🌺</span>
+          <span>💮</span>
+          <span>🌼</span>
+        </div>
+
+        <div class="hero-stats">
+          <div class="stat-pill"><span class="pill-ico">🌸</span><b data-stat="flowers">0</b><small>flores</small></div>
+          <div class="stat-pill"><span class="pill-ico">💗</span><b data-stat="feelings">0</b><small>sentimentos</small></div>
+          <div class="stat-pill"><span class="pill-ico">📅</span><b data-stat="occasions">0</b><small>ocasiões</small></div>
+        </div>
+      </div>
+
+      <div class="feelings-row" id="feelingsRow" aria-label="Sentimentos"></div>
+
+      <div class="flavor-line ut-box">
+        <p class="ut-dialogue" data-flavor>* O cheiro de flores preenche o ar.</p>
+      </div>
+    </section>
+
+    <section class="view" id="view-flores">
+      <div class="page-head">
+        <span class="ut-dialogue">* CATÁLOGO DE FLORES</span>
+        <p class="ut-dialogue">* Escolha uma flor para ver seus significados.</p>
+      </div>
+
+      <div class="catalog-layout">
+        <aside class="filters ut-box">
+          <label class="search-box">
+            <span class="heart" aria-hidden="true">♥</span>
+            <input type="search" id="flowerSearch" placeholder="buscar flores..." autocomplete="off">
+          </label>
+
+          <div class="filter-group">
+            <h4 class="ut-dialogue">* Cores</h4>
+            <div class="color-filters" id="colorFilters"></div>
+          </div>
+
+          <div class="filter-group">
+            <h4 class="ut-dialogue">* Significados</h4>
+            <div class="check-filters" id="meaningFilters"></div>
+          </div>
+
+          <div class="filter-group">
+            <h4 class="ut-dialogue">* Ocasiões</h4>
+            <select class="ut-select ut-selectable" id="occasionFilter"></select>
+          </div>
+
+          <button class="ut-btn ut-selectable full" type="button" id="clearFilters">
+            <span class="heart" aria-hidden="true">♥</span> Limpar
+          </button>
+        </aside>
+
+        <div class="catalog-main">
+          <div class="catalog-toolbar">
+            <span class="ut-dialogue" id="resultCount">* 0 flores</span>
+          </div>
+          <div class="flower-grid" id="flowerGrid"></div>
+          <div class="pagination" id="pagination"></div>
+        </div>
+      </div>
+
+      <div class="flavor-line ut-box">
+        <p class="ut-dialogue" data-flavor>* As flores sussurram segredos antigos.</p>
+      </div>
+    </section>
+
+    <section class="view" id="view-flor"></section>
+
+    <section class="view" id="view-significados">
+      <div class="page-head">
+        <span class="ut-dialogue">* SIGNIFICADOS</span>
+        <p class="ut-dialogue">* Cada sentimento tem uma flor. Escolha o seu.</p>
+      </div>
+      <div class="meaning-groups" id="meaningGroups"></div>
+    </section>
+
+    <section class="view" id="view-ocasioes">
+      <div class="page-head">
+        <span class="ut-dialogue">* OCASIÕES</span>
+        <p class="ut-dialogue">* Presentes que falam sem precisar de palavras.</p>
+      </div>
+      <div class="occasion-grid" id="occasionGrid"></div>
+    </section>
+
+    <section class="view" id="view-buque">
+      <div class="page-head">
+        <span class="ut-dialogue">* CRIAR BUQUÊ</span>
+      </div>
+
+      <ol class="stepper ut-box" id="stepper">
+        <li data-step="1"><span>1</span><em>Flores</em></li>
+        <li data-step="2"><span>2</span><em>Mensagem</em></li>
+        <li data-step="3"><span>3</span><em>Resumo</em></li>
+      </ol>
+
+      <div class="bouquet-body" id="bouquetBody"></div>
+    </section>
+
+    <section class="view" id="view-jardim">
+      <div class="page-head">
+        <span class="ut-dialogue">* MEU JARDIM</span>
+        <p class="ut-dialogue" id="gardenGreeting">* Suas flores favoritas moram aqui.</p>
+      </div>
+
+      <div class="stats-row" id="statsRow"></div>
+      <div class="garden-tabs" id="gardenTabs"></div>
+      <div class="garden-body" id="gardenBody"></div>
+    </section>
+
+    <section class="view" id="view-quiz">
+      <div class="page-head">
+        <span class="ut-dialogue">* QUIZ FLORAL</span>
+        <p class="ut-dialogue">* Descubra qual flor combina com você.</p>
+      </div>
+      <div class="quiz-wrap ut-box" id="quizWrap"></div>
+    </section>
+
+    <!-- ═══════════════════ ADMIN — Painel ═══════════════════ -->
+    <section class="view" id="view-admin">
+      <div class="page-head">
+        <span class="ut-dialogue">* PAINEL DE ADMINISTRAÇÃO</span>
+        <p class="ut-dialogue">* Somente administradores têm acesso.</p>
+      </div>
+
+      <div class="admin-tabs" id="adminTabs">
+        <button type="button" class="ut-selectable active" data-admin-tab="flores">🌸 Flores</button>
+        <button type="button" class="ut-selectable" data-admin-tab="significados">✨ Significados</button>
+        <button type="button" class="ut-selectable" data-admin-tab="ocasioes">📅 Ocasiões</button>
+      </div>
+
+      <div class="admin-body" id="adminBody"></div>
+    </section>
+
+  </main>
+
+  <nav class="bottom-nav ut-box" aria-label="Navegação inferior">
+    <button type="button" data-route="inicio"  class="ut-selectable active"><span>🏠</span>Início</button>
+    <button type="button" data-route="flores"  class="ut-selectable"><span>🌸</span>Flores</button>
+    <button type="button" data-route="buque"   class="ut-selectable"><span>💐</span>Buquê</button>
+    <button type="button" data-route="jardim"  class="ut-selectable"><span>🌱</span>Jardim</button>
+    <button type="button" data-sidebar         class="ut-selectable"><span>♥</span>Perfil</button>
+  </nav>
+
+</div>
+
+<div class="preloader" id="preloader">
+  <div class="preloader-box ut-box">
+    <p class="ut-dialogue" id="preloaderText">* Carregando flores</p>
+    <div class="preloader-bar"><i id="preloaderBar"></i></div>
+    <p class="ut-dialogue preloader-hint">* Pressione Z para pular</p>
+  </div>
+</div>
+
+<div class="scanlines" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+
+<div class="soul-global" id="soulGlobal" aria-hidden="true">♥</div>
+
+<div class="toast ut-box" id="toast" role="status" aria-live="polite">
+  <p class="ut-dialogue" id="toastText">* ...</p>
+</div>
+
+<div class="sidebar-backdrop" id="sidebarBackdrop" hidden></div>
+<aside class="sidebar ut-box" id="sidebar" aria-label="Perfil" hidden>
+  <div class="sidebar-user">
+    <img class="sidebar-avatar-img" src="assets/personagens_inicio.png" alt="" onerror="this.classList.add('failed')">
+    <div>
+      <strong id="userName">VISITANTE</strong>
+      <small class="ut-dialogue" id="userLevel">* LV 1 · Visitante</small>
+      <div class="hp-bar" aria-hidden="true"><i style="width:80%"></i></div>
+      <small class="ut-dialogue hp-text">HP 20 / 20</small>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <button type="button" data-garden-tab="todas"     class="ut-selectable">* Meu Jardim</button>
+    <button type="button" data-garden-tab="favoritos" class="ut-selectable">* Favoritos</button>
+    <button type="button" data-garden-tab="buques"    class="ut-selectable">* Meus Buquês</button>
+    <button type="button" data-garden-tab="historico" class="ut-selectable">* Histórico</button>
+    <button type="button" data-route="quiz"           class="ut-selectable">* Quiz</button>
+    <button type="button" id="sidebarAdmin"           class="ut-selectable" hidden>* Painel Admin 👑</button>
+    <button type="button" id="sidebarConfig"          class="ut-selectable">* Configurações</button>
+    <button type="button" id="sidebarLogout"          class="ut-selectable">* Sair</button>
+  </nav>
+</aside>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/sw.js")
+      .then(() => console.log("✅ Service Worker registrado!"))
+      .catch((err) => console.warn("⚠️ SW não registrado:", err.message));
+  }
+</script>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
