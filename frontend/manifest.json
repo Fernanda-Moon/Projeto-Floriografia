@@ -1,7 +1,8 @@
 {
   "name": "Floriografia — A Linguagem das Flores",
   "short_name": "Floriografia",
-  "start_url": "/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#0f0510",
   "theme_color": "#d4af37",
