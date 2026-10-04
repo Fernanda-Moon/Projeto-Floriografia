@@ -728,3 +728,1214 @@ function renderMeanings(){
       </section>`; 
   }).join(''); 
 } 
+
+
+/* -------------------------------------------------------------------------- 
+  SEGUNDA PARTE - SAMUEL
+   -------------------------------------------------------------------------- */ 
+
+/* --------------------------------------------------------------------------
+11. OCASIÕES
+-------------------------------------------------------------------------- */
+function renderOccasions() {
+    const wrap = $('#occasionGrid');
+    if (!wrap) return;
+    wrap.innerHTML = OCCASIONS.map(o => {
+        const count = FLOWERS.filter(f => f.occasions.includes(o.label)).length;
+        return `
+<button class="occasion-card ut-selectable" type="button"
+data-occasion-open="${o.label}">
+<span class="ico">${o.emoji}</span>
+<h3>${o.label}</h3>
+<p>${o.desc}</p>
+<span class="count">𝑐𝑜𝑢𝑛𝑡𝑓𝑙𝑜𝑟{count === 1 ? '' : 'es'}</span>
+</button>`;
+    }).join('');
+}
+/* --------------------------------------------------------------------------
+12. BUQUÊ
+-------------------------------------------------------------------------- */
+function bouquetItems() {
+    return Object.entries(state.bouquet)
+        .filter(([, q]) => q > 0)
+        .map(([id, q]) => ({ flower: flowerById(id), qty: q }))
+        .filter(x => x.flower);
+}
+const bouquetCount = () => Object.values(state.bouquet).reduce((a, b) => a + b, 0);
+function bouquetFeelings() {
+    const s = new Set();
+    bouquetItems().forEach(({ flower }) => flower.feelings.forEach(f => s.add(f)));
+    return [...s];
+}
+function bouquetVisualHTML(scale = 1) {
+    const items = bouquetItems();
+    if (!items.length) return `<div class="bouquet-empty">* Nenhuma flor escolhida
+ainda.</div>`;
+    const flat = [];
+    items.forEach(({ flower, qty }) => { for (let i = 0; i < Math.min(qty, 12); i++) flat.push(flower); });
+    const GOLDEN = 137.508;
+    const total = flat.length;
+    const spans = flat.map((f, i) => {
+        const angle = i * GOLDEN;
+        const radius = (i === 0 ? 0 : 22 + 12 * Math.sqrt(i)) * scale;
+        const z = 100 - i;
+        const fs = Math.max(0.7, 1 - (i / (total * 1.8)));
+        return `<span style="--a:𝑎𝑛𝑔𝑙𝑒𝑑𝑒𝑔; −− 𝑟:{radius}px;--z:𝑧; −− 𝑠:{fs.toFixed(2)}" title="
+𝑓. 𝑛𝑎𝑚𝑒" >{f.emoji}</span>`;
+    }).join('');
+    return `<div class="bouquet-visual">${spans}</div>`;
+}
+function renderStepper() {
+    $$('#stepper li').forEach(li => {
+        const n = Number(li.dataset.step);
+        li.classList.toggle('active', n === state.step);
+        li.classList.toggle('done', n < state.step);
+    });
+}
+function renderBouquet() {
+    renderStepper();
+    const body = $('#bouquetBody');
+    if (!body) return;
+    if (state.step === 1) body.innerHTML = bouquetStepOne();
+    if (state.step === 2) body.innerHTML = bouquetStepTwo();
+    if (state.step === 3) body.innerHTML = bouquetStepThree();
+}
+function bouquetStepOne() {
+    const rows = FLOWERS.map(f => {
+        const qty = state.bouquet[f.id] || 0;
+        return `
+<div class="picker-row">
+${flowerArt(f, 28)}
+<div><strong>𝑓. 𝑛𝑎𝑚𝑒 < /𝑠𝑡𝑟𝑜𝑛𝑔 >< 𝑠𝑚𝑎𝑙𝑙 >{f.meanings[0] || ''}</small></div>
+<div class="qty">
+<button type="button" class="ut-selectable" data-qty="-1" data-id="${f.id}">−</button>
+<span>${qty}</span>
+<button type="button" class="ut-selectable" data-qty="1" data-id="${f.id}">＋</button>
+</div>
+</div>`;
+    }).join('');
+    const feelings = bouquetFeelings();
+    return `
+<div class="bouquet-grid">
+<section class="builder-panel ut-box">
+<h3>Escolha as flores</h3>
+<div class="flower-picker">${rows}</div>
+</section>
+<section class="builder-panel ut-box bouquet-visual-wrap">
+<h3>Seu buquê</h3>
+${bouquetVisualHTML(1)}
+<p class="bouquet-hint">* 𝑏𝑜𝑢𝑞𝑢𝑒𝑡𝐶𝑜𝑢𝑛𝑡()𝑓𝑙𝑜𝑟{bouquetCount() === 1 ? '' : 'es'} no
+buquê</p>
+</section>
+<section class="builder-panel ut-box">
+<h3>Significados do buquê</h3>
+<div class="tag-row">
+${feelings.length ? feelings.map(f => `<span class="tag hot">${f}</span>`).join('') :
+            '<span class="tag">—</span>'}
+</div>
+<div class="bouquet-total"><span>* Total</span><b>${bouquetCount()}</b></div>
+<div class="builder-actions">
+<button class="ut-btn ut-selectable" type="button" id="clearBouquet">♥
+Limpar</button>
+<button class="ut-btn ut-selectable" type="button" id="nextStep"
+${bouquetCount() ? '' : 'disabled style="opacity:.4"'}>PRÓXIMO →</button>
+</div>
+</section>
+</div>`;
+}
+function bouquetStepTwo() {
+    const len = (state.message || '').length;
+    const SUGGESTIONS = [
+        'Para você, com todo o meu carinho.',
+        'Para você, com amor.',
+        'Gratidão eterna.',
+        'Que a vida te traga flores.',
+        'Você faz meus dias mais leves.'
+    ];
+    return `
+<div class="message-layout">
+<section class="builder-panel ut-box">
+<h3>Mensagem</h3>
+<textarea class="message-area" id="bouquetMessage" maxlength="180"
+placeholder="Para você, com todo o meu carinho...">${state.message}</textarea>
+<div class="counter"><span id="msgCount">${len}</span> / 180</div>
+</section>
+<section class="builder-panel ut-box">
+<h3>Sugestões</h3>
+<div class="suggestion-list">
+${SUGGESTIONS.map(s => `<button class="suggestion ut-selectable" type="button"
+data-suggestion="${s.replace(/"/g, '&quot;')}">* ${s}</button>`).join('')}
+</div>
+</section>
+</div>
+<div class="builder-actions">
+<button class="ut-btn ut-selectable" type="button" data-step-go="1">←
+VOLTAR</button>
+<button class="ut-btn ut-selectable" type="button" data-step-go="3">PRÓXIMO
+→</button>
+</div>`;
+}
+function bouquetStepThree() {
+    const items = bouquetItems();
+    const feelings = bouquetFeelings();
+    const list = items.length
+        ? items.map(({ flower, qty }) => `<span class="tag hot">𝑓𝑙𝑜𝑤𝑒𝑟. 𝑛𝑎𝑚𝑒×
+{qty}</span>`).join('')
+        : '<span class="tag">—</span>';
+    return `
+<div class="summary-layout">
+<section class="summary-card ut-box">
+<h3>Seu buquê</h3>
+${bouquetVisualHTML(1)}
+<div class="tag-row" style="justify-content:center;margin-top:14px">${list}</div>
+</section>
+<section class="summary-card ut-box">
+<h3>Resumo</h3>
+<div class="tag-row" style="margin-bottom:16px">
+${feelings.length ? feelings.map(f => `<span class="tag hot">${f}</span>`).join('') : ''}
+</div>
+<div class="summary-message">${state.message || '* Sem mensagem escrita.'}</div>
+<div class="bouquet-total"><span>* Total</span><b>${bouquetCount()}</b></div>
+<div class="builder-actions">
+<button class="ut-btn ut-selectable" type="button" data-step-go="2">←
+VOLTAR</button>
+<button class="ut-btn ut-selectable" type="button" id="saveBouquet">♥
+SALVAR</button>
+</div>
+</section>
+</div>`;
+}
+async function saveBouquet() {
+    if (!bouquetCount()) { showToast('Escolha ao menos uma flor'); return; }
+    const flores = Object.entries(state.bouquet)
+        .filter(([, q]) => q > 0)
+        .map(([florId, quantidade]) => ({ flor: florId, quantidade }));
+    const nome = `Buquê ${new Date().toLocaleDateString('pt-BR')}`;
+    if (state.user && getToken()) {
+        try {
+            await apiCriarBuque(nome, flores, state.message || "Sem mensagem.");
+            popAt($('#saveBouquet') || document.body, '♥♥', '#c9585a');
+            showToast('Buquê salvo no seu jardim ♥');
+            addHistory('Novo buquê criado com ' + bouquetCount() + ' flores');
+            await sincronizarDadosUsuario();
+            state.bouquet = {}; state.message = ''; state.step = 1;
+            setTimeout(() => go('jardim'), 500);
+            return;
+        } catch (e) { showToast(`Erro: ${e.message}`); }
+    }
+    const date = new Date().toLocaleDateString('pt-BR');
+    state.savedBouquets.unshift({
+        id: 'b' + Date.now(), flowers: { ...state.bouquet }, message:
+            state.message || 'Sem mensagem.', date
+    });
+    addHistory('Novo buquê criado');
+    saveState();
+    popAt($('#saveBouquet') || document.body, '♥♥', '#c9585a');
+    showToast('Buquê salvo localmente ♥');
+    state.bouquet = {}; state.message = ''; state.step = 1;
+    setTimeout(() => go('jardim'), 500);
+}
+/* --------------------------------------------------------------------------
+13. JARDIM
+-------------------------------------------------------------------------- */
+function renderGarden() {
+    renderStats();
+    renderGardenTabs();
+    renderGardenBody();
+    const greeting = $('#gardenGreeting');
+    if (greeting) {
+        const lines = ['* Suas flores favoritas moram aqui.', '* Cada buquê guardado é uma
+memória viva.',' * Você regou bem o seu jardim.'];
+typewrite(greeting, lines[Math.floor(Math.random() * lines.length)]);
+    }
+}
+function renderStats() {
+    const favCount = state.favorites.size;
+    const bouqCount = state.savedBouquets.length;
+    const msgCount = state.savedBouquets.filter(b => b.message && b.message !== 'Sem
+mensagem.').length;
+$('#statsRow').innerHTML = `
+<div class="stat-card"><span class="ico">♥</span><div><b>${favCount}</b><small>*
+favoritas</small></div></div>
+<div class="stat-card"><span class="ico">💐</span><div><b>${bouqCount}</b><small>*
+buquês</small></div></div>
+<div class="stat-card"><span class="ico">✉️</span><div><b>${msgCount}</b><small>*
+mensagens</small></div></div>`;
+}
+function renderGardenTabs() {
+    const tabs = [
+        { id: 'todas', label: '* Meu Jardim' },
+        { id: 'favoritos', label: '* Favoritos' },
+        { id: 'buques', label: '* Meus Buquês' },
+        { id: 'historico', label: '* Histórico' }
+    ];
+    $('#gardenTabs').innerHTML = tabs.map(t => `
+<button type="button" class="ut-selectable ${state.gardenTab === t.id ? 'active' : ''}"
+data-garden-tab="𝑡. 𝑖𝑑" >{t.label}</button>
+`).join('');
+}
+function renderGardenBody() {
+    const body = $('#gardenBody');
+    if (state.gardenTab === 'buques') {
+        body.innerHTML = state.savedBouquets.length
+            ? `<div
+class="bouquet-cards">${state.savedBouquets.map(bouquetCardHTML).join('')}</div>`
+            : emptyState('💐', '* Você ainda não criou nenhum buquê.');
+        return;
+    }
+    if (state.gardenTab === 'historico') {
+        body.innerHTML = state.history.length
+            ? `<div class="bouquet-cards">${state.history.map(h => `
+<div class="bouquet-card"><p class="ut-dialogue" style="font-size:20px">
+ℎ. 𝑡𝑒𝑥𝑡 < /𝑝 >< 𝑡𝑖𝑚𝑒 >{h.date}</time></div>
+`).join('')}</div>`
+            : emptyState('🕘', '* Sem histórico por enquanto.');
+        return;
+    }
+    const list = state.gardenTab === 'favoritos'
+        ? FLOWERS.filter(f => state.favorites.has(f.id))
+        : FLOWERS.slice(0, 12);
+    body.innerHTML = list.length
+        ? `<div class="garden-grid">${list.map(f => `
+<button class="garden-item ut-selectable" type="button" data-flower-open="${f.id}">
+𝑓𝑙𝑜𝑤𝑒𝑟𝐴𝑟𝑡(𝑓, 56) < 𝑠𝑡𝑟𝑜𝑛𝑔 >{f.name}</strong><small>${f.meanings[0] || ''}</small>
+</button>`).join('')}</div>`
+        : emptyState('🌱', '* Nenhuma flor aqui ainda.');
+}
+function bouquetCardHTML(b) {
+    const items = Object.entries(b.flowers || {}).map(([id, qty]) => ({
+        flower: flowerById(id), qty
+    })).filter(x => x.flower);
+    const flat = [];
+    items.forEach(({ flower, qty }) => { for (let i = 0; i < Math.min(qty, 8); i++) flat.push(flower); });
+    const GOLDEN = 137.508;
+    const spans = flat.map((f, i) => {
+        const angle = i * GOLDEN;
+        const radius = (i === 0 ? 0 : 20 + 10 * Math.sqrt(i)) * 0.75;
+        const z = 100 - i;
+        const fs = Math.max(0.65, 1 - (i / (flat.length * 1.6)));
+        return `<span style="--a:𝑎𝑛𝑔𝑙𝑒𝑑𝑒𝑔; −− 𝑟:{radius}px;--z:𝑧; −− 𝑠:{fs.toFixed(2)}" title="
+𝑓. 𝑛𝑎𝑚𝑒" >{f.emoji}</span>`;
+    }).join('');
+    return `<article class="bouquet-card"><div class="bouquet-visual">
+𝑠𝑝𝑎𝑛𝑠 < /𝑑𝑖𝑣 >< 𝑏𝑙𝑜𝑐𝑘𝑞𝑢𝑜𝑡𝑒 >
+{b.message}</blockquote><time>${b.date}</time></article>`;
+}
+const emptyState = (ico, text) => `<div class="empty-state"><span class="ico">
+𝑖𝑐𝑜 < /𝑠𝑝𝑎𝑛 >{text}</div>`;
+/* --------------------------------------------------------------------------
+14. QUIZ
+-------------------------------------------------------------------------- */
+const QUIZ = [
+    {
+        q: 'O que te faz sorrir logo ao acordar?', options: [
+            { t: 'Uma mensagem de quem eu amo', f: 'Amor' },
+            { t: 'A luz do sol entrando pela janela', f: 'Alegria' },
+            { t: 'O silêncio tranquilo da manhã', f: 'Tranquilidade' },
+            { t: 'Um novo plano para o dia', f: 'Esperança' }]
+    },
+    {
+        q: 'Qual dessas cores mais combina com você?', options: [
+            { t: 'Vermelho intenso', f: 'Amor' },
+            { t: 'Amarelo vibrante', f: 'Alegria' },
+            { t: 'Verde suave', f: 'Amizade' },
+            { t: 'Lilás calmo', f: 'Tranquilidade' }]
+    },
+    {
+        q: 'Qual sentimento mais representa você?', options: [
+            { t: 'Amor', f: 'Amor' },
+            { t: 'Alegria', f: 'Alegria' },
+            { t: 'Tranquilidade', f: 'Tranquilidade' },
+            { t: 'Esperança', f: 'Esperança' }]
+    },
+    {
+        q: 'O que você faria por um amigo?', options: [
+            { t: 'Qualquer coisa, sem pensar', f: 'Amizade' },
+            { t: 'Estaria ao lado em silêncio', f: 'Tranquilidade' },
+            { t: 'Faria uma surpresa enorme', f: 'Alegria' },
+            { t: 'Daria forças para recomeçar', f: 'Esperança' }]
+    },
+    {
+        q: 'Qual lembrança você guarda com carinho?', options: [
+            { t: 'Um abraço apertado', f: 'Amor' },
+            { t: 'Uma risada compartilhada', f: 'Alegria' },
+            { t: 'Uma tarde sem pressa', f: 'Tranquilidade' },
+            { t: 'Uma conversa que mudou tudo', f: 'Amizade' }]
+    },
+    {
+        q: 'Que mensagem você gostaria de deixar?', options: [
+            { t: '"Eu te amo mais do que consigo dizer."', f: 'Amor' },
+            { t: '"Obrigado(a) por existir."', f: 'Amizade' },
+            { t: '"Vai dar tudo certo."', f: 'Esperança' },
+            { t: '"Respire. Você está bem."', f: 'Tranquilidade' }]
+    }
+];
+function renderQuiz() {
+    const wrap = $('#quizWrap');
+    if (!wrap) return;
+    if (state.quizResult) {
+        const feel = feelingById(state.quizResult) || FEELINGS[0];
+        const flower = FLOWERS.find(f => f.feelings.includes(feel.id)) || FLOWERS[0];
+        wrap.innerHTML = `
+<div class="quiz-result">
+${flower ? flowerArt(flower, 96) : ''}
+<h2>RESULTADO: ${feel.label} ${feel.emoji}</h2>
+<p>𝑓𝑒𝑒𝑙. 𝑑𝑒𝑠𝑐 < 𝑏𝑟 > 𝐴𝑓𝑙𝑜𝑟𝑞𝑢𝑒𝑐𝑜𝑚𝑏𝑖𝑛𝑎é < 𝑠𝑡𝑟𝑜𝑛𝑔𝑠𝑡𝑦𝑙𝑒 = "𝑐𝑜𝑙𝑜𝑟: #𝑑4𝑎𝑓37" >{flower
+? flower.name : '—'}</strong>.</p>
+${flower ? `<button class="ut-btn ut-selectable" type="button"
+data-flower-open="${flower.id}">♥ VER ESSA FLOR</button>` : ''}
+<button class="ut-btn ut-selectable" type="button" id="restartQuiz"
+style="margin-top:12px">REFAZER</button>
+</div>`;
+        return;
+    }
+    const q = QUIZ[state.quizIndex];
+    const pct = (state.quizIndex / QUIZ.length) * 100;
+    wrap.innerHTML = `
+<div class="quiz-progress"><span>* Pergunta ${state.quizIndex + 1} de
+${QUIZ.length}</span>
+<div class="quiz-bar"><i style="width:${pct}%"></i></div></div>
+<h2 class="quiz-question">${q.q}</h2>
+<div class="quiz-options">
+${q.options.map(o => `<button class="quiz-option ut-selectable" type="button"
+data-quiz="${o.f}">${o.t}</button>`).join('')}
+</div>`;
+}
+function answerQuiz(feeling) {
+    state.quizScores[feeling] = (state.quizScores[feeling] || 0) + 1;
+    if (state.quizIndex < QUIZ.length - 1) {
+        state.quizIndex++;
+        renderQuiz();
+        resetSoulFocus();
+        return;
+    }
+    const winner = Object.entries(state.quizScores).sort((a, b) => b[1] - a[1])[0][0];
+    state.quizResult = winner;
+    addHistory('Quiz floral concluído');
+    saveState();
+    renderQuiz();
+}
+/* --------------------------------------------------------------------------
+15. FAVORITOS
+-------------------------------------------------------------------------- */
+async function toggleFavorite(id) {
+    const f = flowerById(id);
+    if (!f) return;
+    const btn = (`[𝑑𝑎𝑡𝑎 − 𝑓𝑎𝑣 = "{id}"]`);
+    const tinha = state.favorites.has(id);
+    if (tinha) state.favorites.delete(id);
+    else state.favorites.add(id);
+    $(`[𝑑𝑎𝑡𝑎 − 𝑓𝑎𝑣 = "{id}"]`).forEach(b => {
+        if (b.classList.contains('fav-btn')) b.classList.toggle('on', state.favorites.has(id));
+    });
+    if (state.user && getToken()) {
+        try {
+            if (tinha) await apiRemFavorito(id);
+            else await apiAddFavorito(id);
+            showToast(`${f.name} ${tinha ? 'removida' : 'adicionada'} dos favoritos`);
+            if (!tinha && btn) popAt(btn, '♥', '#c9585a');
+        } catch (e) {
+            if (tinha) state.favorites.add(id);
+            else state.favorites.delete(id);
+            showToast(`Erro: ${e.message}`);
+        }
+    } else {
+        showToast(`${f.name} ${tinha ? 'removida' : 'adicionada'} dos favoritos`);
+        if (!tinha && btn) popAt(btn, '♥', '#c9585a');
+    }
+    saveState();
+    if (state.route === 'flor') renderFlowerDetail(id);
+}
+/* --------------------------------------------------------------------------
+16. SIDEBAR
+-------------------------------------------------------------------------- */
+const sidebar = $('#sidebar');
+const sidebarBackdrop = $('#sidebarBackdrop');
+const openSidebar = () => {
+    if (sidebar) {
+        sidebar.hidden = false; sidebarBackdrop.hidden =
+            false;
+    }
+};
+const closeSidebar = () => {
+    if (sidebar) {
+        sidebar.hidden = true; sidebarBackdrop.hidden =
+            true;
+    }
+};
+function closeMobileNav() {
+    const nav = $('#mobileNav'), btn = $('#menuBtn');
+    if (nav) nav.classList.remove('open');
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+}
+/* --------------------------------------------------------------------------
+17. LOGIN UI
+-------------------------------------------------------------------------- */
+function updateLoginUI() {
+    const enterBtn = $('#enterBtn');
+    const avatarBtn = $('#avatarBtn');
+    const adminBtn = $('#adminBtn');
+    const sidebarAdmin = $('#sidebarAdmin');
+    const userName = $('#userName');
+    const userLevel = $('#userLevel');
+    console.log("[UI] updateLoginUI chamado. state.user =", state.user);
+    if (state.user) {
+        if (enterBtn) enterBtn.hidden = true;
+        if (avatarBtn) avatarBtn.hidden = false;
+        if (userName) userName.textContent = (state.user.name || '').toUpperCase();
+        const isAdmin = state.user.perfil === "admin";
+        console.log("[UI] isAdmin?", isAdmin, "| adminBtn:", !!adminBtn, "| sidebarAdmin:",
+            !!sidebarAdmin);
+        if (adminBtn) adminBtn.hidden = !isAdmin;
+        if (sidebarAdmin) sidebarAdmin.hidden = !isAdmin;
+        if (userLevel) userLevel.textContent = isAdmin
+            ? '* LV 99 · Administrador'
+            : '* LV 5 · Jardineira';
+    } else {
+        if (enterBtn) enterBtn.hidden = false;
+        if (avatarBtn) avatarBtn.hidden = true;
+        if (adminBtn) adminBtn.hidden = true;
+        if (sidebarAdmin) sidebarAdmin.hidden = true;
+        if (userName) userName.textContent = 'VISITANTE';
+        if (userLevel) userLevel.textContent = '* LV 1 · Visitante';
+        console.log("[UI] Nenhum usuário logado.");
+    }
+}
+/* --------------------------------------------------------------------------
+18. AUTH
+-------------------------------------------------------------------------- */
+async function registerUser(name, email, password) {
+    try {
+        await apiRegister(name, email, password);
+        return await loginUser(email, password);
+    } catch (e) { return { ok: false, msg: e.message }; }
+}
+async function loginUser(email, password) {
+    try {
+        const data = await apiLogin(email, password);
+        setToken(data.token);
+        return {
+            ok: true, user: {
+                name: data.usuario.nome,
+                email: data.usuario.email,
+                perfil: data.usuario.perfil
+            }
+        };
+    } catch (e) {
+        return { ok: false, msg: e.message };
+    }
+}
+function logoutUser() {
+    setToken(null);
+    state.user = null;
+    state.favorites = new Set();
+    state.savedBouquets = [];
+    saveState();
+}
+async function sincronizarDadosUsuario() {
+    try {
+        const [favs, buques] = await Promise.all([apiListarFavoritos(), apiListarBuques()]);
+        state.favorites = new Set((favs || []).map(f => (f.flor && f.flor._id) ? f.flor._id : f.flor));
+        state.savedBouquets = (buques || []).map(b => ({
+            id: b._id,
+            flowers: Object.fromEntries((b.flores || []).map(item => [
+                (item.flor && item.flor._id) ? item.flor._id : item.flor,
+                item.quantidade
+            ])),
+            message: b.mensagem || 'Sem mensagem.',
+            date: b.createdAt ? new Date(b.createdAt).toLocaleDateString('pt-BR') : ''
+        }));
+    } catch (e) { console.warn('[sync] Erro:', e.message); }
+}
+/* --------------------------------------------------------------------------
+19. PORTAL — Grimório
+-------------------------------------------------------------------------- */
+function setupPortal() {
+    const grimoire = $('#grimoire');
+    const portal = $('#portal');
+    if (!grimoire || !portal) return;
+    portal.classList.remove('closing');
+    grimoire.classList.remove('open');
+    const openBtn = $('#grimoireOpenBtn');
+    if (openBtn && !openBtn.dataset.bound) {
+        openBtn.dataset.bound = '1';
+        openBtn.addEventListener('click', () => {
+            grimoire.classList.add('open');
+            setTimeout(() => { const f = $('#portalLoginEmail'); if (f) f.focus(); }, 1100);
+        });
+    }
+    $$('[data-portal-tab]').forEach(tab => {
+        if (tab.dataset.bound) return;
+        tab.dataset.bound = '1';
+        tab.addEventListener('click', () => {
+            const which = tab.dataset.portalTab;
+            $$('.page-tab').forEach(b => b.classList.toggle('active', b.dataset.portalTab === which));
+            $$('.page-panel').forEach(p => p.hidden = p.dataset.portalPanel !== which);
+        });
+    });
+    const loginBtn = $('#portalDoLogin');
+    if (loginBtn && !loginBtn.dataset.bound) {
+        loginBtn.dataset.bound = '1';
+        loginBtn.addEventListener('click', async () => {
+            const email = $('#portalLoginEmail').value;
+            const pass = $('#portalLoginPass').value;
+            const msg = $('#portalLoginMsg');
+            if (!email || !pass) { setPortalMsg(msg, 'Preencha e-mail e senha.', false); return; }
+            loginBtn.disabled = true;
+            const res = await loginUser(email, pass);
+            loginBtn.disabled = false;
+            if (!res.ok) { setPortalMsg(msg, res.msg, false); return; }
+            state.user = res.user;
+            await sincronizarDadosUsuario();
+            updateLoginUI();
+            saveState();
+            setPortalMsg(msg, '', false);
+            enterGarden(`Bem-vindo(a), ${state.user.name} ♥`);
+        });
+    }
+    const regBtn = $('#portalDoRegister');
+    if (regBtn && !regBtn.dataset.bound) {
+        regBtn.dataset.bound = '1';
+        regBtn.addEventListener('click', async () => {
+            const name = $('#portalRegName').value;
+            const email = $('#portalRegEmail').value;
+            const pass = $('#portalRegPass').value;
+            const pass2 = $('#portalRegPass2').value;
+            const msg = $('#portalRegisterMsg');
+            if (pass !== pass2) { setPortalMsg(msg, 'As senhas não coincidem.', false); return; }
+            regBtn.disabled = true;
+            const res = await registerUser(name, email, pass);
+            regBtn.disabled = false;
+            if (!res.ok) { setPortalMsg(msg, res.msg, false); return; }
+            state.user = res.user;
+            await sincronizarDadosUsuario();
+            updateLoginUI();
+            saveState();
+            setPortalMsg(msg, '', true);
+            enterGarden(`Conta criada. Bem-vindo(a), ${state.user.name} ♥`);
+        });
+    }
+    ['portalLoginEmail', 'portalLoginPass', 'portalRegName', 'portalRegEmail', 'portalRegPass', 'port
+alRegPass2']
+            .forEach(id => {
+                const el = document.getElementById(id);
+                if (!el || el.dataset.bound) return;
+                el.dataset.bound = '1';
+                el.addEventListener('keydown', e => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const isLogin = id.startsWith('portalLogin');
+                        const btn = isLogin ? $('#portalDoLogin') : $('#portalDoRegister');
+                        if (btn) btn.click();
+                    }
+                });
+            });
+}
+function setPortalMsg(el, msg, ok) {
+    if (!el) return;
+    el.textContent = msg ? '✦ ' + msg : '';
+    el.classList.toggle('err', !ok);
+    el.classList.toggle('ok', !!ok);
+}
+function enterGarden(toastMsg) {
+    const portal = $('#portal');
+    const grimoire = $('#grimoire');
+    if (!portal || !grimoire) {
+        document.body.classList.add('entered');
+        if (toastMsg) showToast(toastMsg);
+        return;
+    }
+    grimoire.classList.remove('open');
+    setTimeout(() => portal.classList.add('closing'), 800);
+    setTimeout(() => {
+        document.body.classList.add('entered');
+        if (toastMsg) showToast(toastMsg);
+        window.scrollTo({ top: 0, behavior: 'auto' });
+        renderHome();
+    }, 1300);
+}
+/*
+═════════════════════════════════════════════════════════
+═════════
+20. ADMIN — Painel de Administração
+═════════════════════════════════════════════════════════
+═════════ */
+function renderAdmin() {
+    if (!state.user || state.user.perfil !== "admin") {
+        showToast("Acesso negado. Apenas administradores.");
+        go('inicio');
+        return;
+    }
+    $$('#adminTabs button').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.adminTab === state.adminTab);
+    });
+    const body = $('#adminBody');
+    if (!body) return;
+    if (state.adminTab === 'flores') {
+        body.innerHTML = adminFloresHTML();
+    } else if (state.adminTab === 'significados') {
+        body.innerHTML = adminSignificadosHTML();
+        carregarSignificadosAdmin();
+    } else if (state.adminTab === 'ocasioes') {
+        body.innerHTML = adminOcasioesHTML();
+        carregarOcasioesAdmin();
+    }
+}
+function adminFloresHTML() {
+    const lista = FLOWERS.map(f => `
+<tr>
+<td>${f.emoji} ${f.name}</td>
+<td><small>${f.sci}</small></td>
+<td>${(f.colors || []).join(', ')}</td>
+<td>R$ ${(f.preco || 0).toFixed(2)}</td>
+<td>
+<button class="ut-btn ut-selectable" data-admin-edit-flor="${f.id}">✏️ Editar</button>
+<button class="ut-btn ut-selectable" data-admin-del-flor="${f.id}">🗑️ Excluir</button>
+</td>
+</tr>
+`).join('');
+    return `
+<section class="ut-box" style="padding:20px">
+<div
+style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:
+12px;flex-wrap:wrap">
+<h3 class="ut-dialogue" style="font-size:20px">* Catálogo de Flores
+(${FLOWERS.length})</h3>
+<button class="ut-btn ut-selectable" id="adminNovaFlor">+ NOVA FLOR</button>
+</div>
+<div style="overflow-x:auto">
+<table class="admin-table">
+<thead><tr><th>Nome</th><th>Espécie</th><th>Cores</th><th>Preço</th><th>Ações</th
+></tr></thead>
+<tbody>${lista}</tbody>
+</table>
+</div>
+</section>
+`;
+}
+function adminSignificadosHTML() {
+    return `
+<section class="ut-box" style="padding:20px">
+<div
+style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:
+12px;flex-wrap:wrap">
+<h3 class="ut-dialogue" style="font-size:20px">* Significados</h3>
+<button class="ut-btn ut-selectable" id="adminNovoSignificado">+ NOVO</button>
+</div>
+<div id="adminSignificadosLista">* Carregando...</div>
+</section>
+`;
+}
+function adminOcasioesHTML() {
+    return `
+<section class="ut-box" style="padding:20px">
+<div
+style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:
+12px;flex-wrap:wrap">
+<h3 class="ut-dialogue" style="font-size:20px">* Ocasiões</h3>
+<button class="ut-btn ut-selectable" id="adminNovaOcasiao">+ NOVA</button>
+</div>
+<div id="adminOcasioesLista">* Carregando...</div>
+</section>
+`;
+}
+async function carregarSignificadosAdmin() {
+    const wrap = $('#adminSignificadosLista');
+    if (!wrap) return;
+    try {
+        const lista = await apiAdminListarSignificados();
+        wrap.innerHTML = lista.length ? `
+<div style="overflow-x:auto">
+<table class="admin-table">
+<thead><tr><th>Nome</th><th>Descrição</th><th>Ações</th></tr></thead>
+<tbody>${lista.map(s => `
+<tr>
+<td>${s.nome}</td>
+<td>${s.descricao}</td>
+<td>
+<button class="ut-btn ut-selectable" data-admin-edit-sig="
+𝑠. {s.nome}" data-sig-desc="${s.descricao}">✏️</button>
+𝑖
+𝑑"𝑑𝑎𝑡𝑎 − 𝑠𝑖𝑔 − 𝑛𝑜𝑚𝑒 = "
+<button class="ut-btn ut-selectable" data-admin-del-sig="${s._id}">🗑️</button>
+</td>
+</tr>`).join('')}
+</tbody>
+</table>
+</div>
+` : '<p class="ut-dialogue">* Nenhum significado cadastrado.</p>';
+    } catch (e) {
+        wrap.innerHTML = `<p class="ut-dialogue">* Erro: ${e.message}</p>`;
+    }
+}
+async function carregarOcasioesAdmin() {
+    const wrap = $('#adminOcasioesLista');
+    if (!wrap) return;
+    try {
+        const lista = await apiAdminListarOcasioes();
+        wrap.innerHTML = lista.length ? `
+<div style="overflow-x:auto">
+<table class="admin-table">
+<thead><tr><th>Nome</th><th>Descrição</th><th>Ações</th></tr></thead>
+<tbody>${lista.map(o => `
+<tr>
+<td>${o.nome}</td>
+<td>${o.descricao || ''}</td>
+<td>
+<button class="ut-btn ut-selectable" data-admin-edit-occ="
+𝑜. {o.nome}" data-occ-desc="${o.descricao || ''}">✏️</button>
+𝑖
+𝑑"𝑑𝑎𝑡𝑎 − 𝑜𝑐𝑐 − 𝑛𝑜𝑚𝑒 = "
+<button class="ut-btn ut-selectable" data-admin-del-occ="${o._id}">🗑️</button>
+</td>
+</tr>`).join('')}
+</tbody>
+</table>
+</div>
+` : '<p class="ut-dialogue">* Nenhuma ocasião cadastrada.</p>';
+    } catch (e) {
+        wrap.innerHTML = `<p class="ut-dialogue">* Erro: ${e.message}</p>`;
+    }
+}
+function adminFormModal(titulo, campos, onSave) {
+    const backdrop = document.createElement('div');
+    backdrop.className = 'admin-modal-backdrop';
+    backdrop.innerHTML = `
+<div class="admin-modal ut-box">
+<h3 class="ut-dialogue" style="font-size:22px;margin-bottom:16px">* ${titulo}</h3>
+<form id="adminForm">
+${campos.map(c => `
+<label class="page-field">
+<span>✦ ${c.label}</span>
+<input class="page-input" name="𝑐. 𝑛𝑎𝑚𝑒"𝑡𝑦𝑝𝑒 = "{c.type || 'text'}"
+value="${c.value ?? ''}" ${c.required ? 'required' : ''}
+${c.type === 'number' ? 'step="0.01"' : ''}>
+</label>
+`).join('')}
+<div style="display:flex;gap:10px;margin-top:16px">
+<button type="submit" class="page-submit" style="flex:1">
+<span class="heart">♥</span> SALVAR
+</button>
+<button type="button" class="ut-btn ut-selectable"
+id="adminCancel">Cancelar</button>
+</div>
+</form>
+</div>
+`;
+    document.body.appendChild(backdrop);
+    backdrop.querySelector('#adminCancel').onclick = () => backdrop.remove();
+    backdrop.querySelector('#adminForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const dados = Object.fromEntries(new FormData(e.target).entries());
+        try {
+            await onSave(dados);
+            backdrop.remove();
+            showToast("Salvo com sucesso ✦");
+        } catch (err) {
+            showToast(`Erro: ${err.message}`);
+        }
+    };
+}
+async function recarregarCatalogo() {
+    try {
+        const listaApi = await apiListarFlores();
+        if (listaApi?.length) {
+            const local = FLOWERS.slice();
+            FLOWERS.length = 0;
+            listaApi.forEach(f => {
+                const loc = local.find(x => x.name === f.nome);
+                FLOWERS.push({
+                    id: f.id, name: f.nome, sci: f.especie,
+                    emoji: f.emoji || loc?.emoji || "🌸",
+                    file: f.file || loc?.file || "",
+                    feelings: f.feelings?.length ? f.feelings : (loc?.feelings || []),
+                    meanings: f.meanings?.length ? f.meanings : (loc?.meanings || []),
+                    colors: f.colors?.length ? f.colors : [f.cor],
+                    category: f.category || loc?.category || "",
+                    origin: f.origin || loc?.origin || "",
+                    season: f.season || loc?.season || "",
+                    about: f.descricao || loc?.about || "",
+                    occasions: f.occasions?.length ? f.occasions : (loc?.occasions || []),
+                    preco: f.preco,
+                    estoque: f.estoque
+                });
+            });
+            renderHome();
+        }
+    } catch (e) { /* silencioso */ }
+}
+/* --------------------------------------------------------------------------
+21. EVENTOS GLOBAIS
+-------------------------------------------------------------------------- */
+document.addEventListener('click', async (event) => {
+    const t = event.target;
+    // Favoritos
+    const favBtn = t.closest('[data-fav]');
+    if (favBtn) {
+        event.preventDefault(); event.stopPropagation();
+        toggleFavorite(favBtn.dataset.fav);
+        return;
+    }
+    // Abrir flor
+    const flowerOpen = t.closest('[data-flower-open]');
+    if (flowerOpen) {
+        event.preventDefault(); go('flor', { id: flowerOpen.dataset.flowerOpen });
+        return;
+    }
+    // Navegação por data-route
+    const routeEl = t.closest('[data-route]');
+    if (routeEl) { event.preventDefault(); go(routeEl.dataset.route); return; }
+    /* ============ ADMIN ============ */
+    if (t.closest('#adminBtn') || t.closest('#sidebarAdmin')) {
+        closeSidebar();
+        go('admin');
+        return;
+    }
+    const adminTabBtn = t.closest('[data-admin-tab]');
+    if (adminTabBtn) {
+        state.adminTab = adminTabBtn.dataset.adminTab;
+        renderAdmin();
+        return;
+    }
+    if (t.closest('#adminNovaFlor')) {
+        adminFormModal("Nova Flor", [
+            { name: "nome", label: "Nome", required: true },
+            { name: "especie", label: "Espécie", required: true },
+            { name: "cor", label: "Cor principal", required: true },
+            { name: "emoji", label: "Emoji" },
+            { name: "descricao", label: "Descrição" },
+            { name: "preco", label: "Preço", type: "number", required: true },
+            { name: "estoque", label: "Estoque", type: "number", required: true }
+        ], async (dados) => {
+            dados.preco = Number(dados.preco);
+            dados.estoque = Number(dados.estoque);
+            await apiAdminCriarFlor(dados);
+            await recarregarCatalogo();
+            renderAdmin();
+        });
+        return;
+    }
+    const editFlor = t.closest('[data-admin-edit-flor]');
+    if (editFlor) {
+        const f = FLOWERS.find(x => x.id === editFlor.dataset.adminEditFlor);
+        adminFormModal("Editar Flor", [
+            { name: "nome", label: "Nome", value: f.name, required: true },
+            { name: "especie", label: "Espécie", value: f.sci, required: true },
+            {
+                name: "cor", label: "Cor principal", value: (f.colors && f.colors[0]) || f.cor || "",
+                required: true
+            },
+            { name: "emoji", label: "Emoji", value: f.emoji },
+            { name: "descricao", label: "Descrição", value: f.about },
+            { name: "preco", label: "Preço", type: "number", value: f.preco || 0 },
+            { name: "estoque", label: "Estoque", type: "number", value: f.estoque || 0 }
+        ], async (dados) => {
+            dados.preco = Number(dados.preco);
+            dados.estoque = Number(dados.estoque);
+            await apiAdminAtualizarFlor(f.id, dados);
+            await recarregarCatalogo();
+            renderAdmin();
+        });
+        return;
+    }
+    const delFlor = t.closest('[data-admin-del-flor]');
+    if (delFlor) {
+        if (!confirm("Excluir esta flor?")) return;
+        try {
+            await apiAdminExcluirFlor(delFlor.dataset.adminDelFlor);
+            await recarregarCatalogo();
+            renderAdmin();
+            showToast("Flor excluída.");
+        } catch (e) { showToast(`Erro: ${e.message}`); }
+        return;
+    }
+    if (t.closest('#adminNovoSignificado')) {
+        adminFormModal("Novo Significado", [
+            { name: "nome", label: "Nome", required: true },
+            { name: "descricao", label: "Descrição", required: true }
+        ], async (dados) => {
+            await apiAdminCriarSignificado(dados);
+            carregarSignificadosAdmin();
+        });
+        return;
+    }
+    const editSig = t.closest('[data-admin-edit-sig]');
+    if (editSig) {
+        adminFormModal("Editar Significado", [
+            { name: "nome", label: "Nome", value: editSig.dataset.sigNome, required: true },
+            { name: "descricao", label: "Descrição", value: editSig.dataset.sigDesc, required: true }
+        ], async (dados) => {
+            await apiAdminAtualizarSignificado(editSig.dataset.adminEditSig, dados);
+            carregarSignificadosAdmin();
+        });
+        return;
+    }
+    const delSig = t.closest('[data-admin-del-sig]');
+    if (delSig) {
+        if (!confirm("Excluir este significado?")) return;
+        try {
+            await apiAdminExcluirSignificado(delSig.dataset.adminDelSig);
+            carregarSignificadosAdmin();
+            showToast("Significado excluído.");
+        } catch (e) { showToast(`Erro: ${e.message}`); }
+        return;
+    }
+    if (t.closest('#adminNovaOcasiao')) {
+        adminFormModal("Nova Ocasião", [
+            { name: "nome", label: "Nome", required: true },
+            { name: "descricao", label: "Descrição" }
+        ], async (dados) => {
+            await apiAdminCriarOcasiao(dados);
+            carregarOcasioesAdmin();
+        });
+        return;
+    }
+    const editOcc = t.closest('[data-admin-edit-occ]');
+    if (editOcc) {
+        adminFormModal("Editar Ocasião", [
+            { name: "nome", label: "Nome", value: editOcc.dataset.occNome, required: true },
+            { name: "descricao", label: "Descrição", value: editOcc.dataset.occDesc }
+        ], async (dados) => {
+            await apiAdminAtualizarOcasiao(editOcc.dataset.adminEditOcc, dados);
+            carregarOcasioesAdmin();
+        });
+        return;
+    }
+    const delOcc = t.closest('[data-admin-del-occ]');
+    if (delOcc) {
+        if (!confirm("Excluir esta ocasião?")) return;
+        try {
+            await apiAdminExcluirOcasiao(delOcc.dataset.adminDelOcc);
+            carregarOcasioesAdmin();
+            showToast("Ocasião excluída.");
+        } catch (e) { showToast(`Erro: ${e.message}`); }
+        return;
+    }
+    /* ============ /ADMIN ============ */
+    // Color chip
+    const colorChip = t.closest('[data-color]');
+    if (colorChip) {
+        const c = colorChip.dataset.color;
+        const wasOn = state.colors.has(c);
+        wasOn ? state.colors.delete(c) : state.colors.add(c);
+        state.page = 1;
+        const chipColor = colorChip.style.getPropertyValue('--chip-color') || '#d4af37';
+        popAt(colorChip, wasOn ? '−' : '+', wasOn ? '#8b6b8b' : chipColor);
+        const total = getFilteredFlowers().length;
+        const corLabel = (COLORS.find(x => x.id === c) || {}).label || c;
+        showToast(wasOn ? `${corLabel} removida — 𝑡𝑜𝑡𝑎𝑙𝑓𝑙𝑜𝑟𝑒𝑠` : `{corLabel} — ${total} flores`);
+        renderColorFilters();
+        renderCatalogResults();
+        return;
+    }
+    const pageBtn = t.closest('[data-page]');
+    if (pageBtn && !pageBtn.disabled) {
+        state.page = Number(pageBtn.dataset.page);
+        renderCatalogResults();
+        return;
+    }
+    const feelingCard = t.closest('[data-feeling]');
+    if (feelingCard) {
+        const feelingId = feelingCard.dataset.feeling;
+        state.meanings.clear();
+        state.meanings.add(feelingId);
+        state.page = 1;
+        $$('.feeling-card').forEach(c => c.classList.remove('active'));
+        feelingCard.classList.add('active');
+        const f = feelingById(feelingId);
+        popAt(feelingCard, '♥', f.color);
+        showToast(`Mostrando flores de ${f.label}...`);
+        setTimeout(() => go('flores'), 400);
+        return;
+    }
+    const addBtn = t.closest('[data-add-bouquet]');
+    if (addBtn) {
+        const id = addBtn.dataset.addBouquet;
+        state.bouquet[id] = (state.bouquet[id] || 0) + 1;
+        popAt(addBtn, '+1', '#d4af37');
+        showToast(`${flowerById(id).name} adicionada`);
+        return;
+    }
+    const qtyBtn = t.closest('[data-qty]');
+    if (qtyBtn) {
+        const id = qtyBtn.dataset.id;
+        const delta = Number(qtyBtn.dataset.qty);
+        state.bouquet[id] = Math.max(0, (state.bouquet[id] || 0) + delta);
+        if (!state.bouquet[id]) delete state.bouquet[id];
+        if (delta > 0) popAt(qtyBtn, '+1', '#d4af37');
+        renderBouquet();
+        return;
+    }
+    const stepGo = t.closest('[data-step-go]');
+    if (stepGo) {
+        state.step = Number(stepGo.dataset.stepGo);
+        renderBouquet();
+        return;
+    }
+    const suggestion = t.closest('[data-suggestion]');
+    if (suggestion) {
+        state.message = suggestion.dataset.suggestion;
+        renderBouquet();
+        return;
+    }
+    const gardenTab = t.closest('[data-garden-tab], [data-jardim-tab]');
+    if (gardenTab) {
+        const tabId = gardenTab.dataset.gardenTab || gardenTab.dataset.jardimTab;
+        if (tabId) {
+            state.gardenTab = tabId;
+            closeSidebar();
+            if (state.route !== 'jardim') go('jardim');
+            else renderGarden();
+            return;
+        }
+    }
+    const occOpen = t.closest('[data-occasion-open]');
+    if (occOpen) {
+        state.occasion = occOpen.dataset.occasionOpen;
+        state.page = 1;
+        go('flores');
+        return;
+    }
+    const quizAnswer = t.closest('[data-quiz]');
+    if (quizAnswer) { answerQuiz(quizAnswer.dataset.quiz); return; }
+    if (t.closest('[data-sidebar]')) { openSidebar(); return; }
+    if (t.closest('#menuBtn')) {
+        const nav = $('#mobileNav');
+        const open = nav.classList.toggle('open');
+        $('#menuBtn').setAttribute('aria-expanded', String(open));
+        return;
+    }
+    if (t.closest('#sidebarConfig')) { showToast('Configurações em breve'); return; }
+    if (t.closest('#sidebarLogout')) {
+        logoutUser();
+        updateLoginUI();
+        closeSidebar();
+        document.body.classList.remove('entered');
+        showToast('Você saiu do jardim');
+        setupPortal();
+        return;
+    }
+    if (t.closest('#clearFilters')) {
+        state.query = ''; state.colors.clear(); state.meanings.clear();
+        state.occasion = 'Todas'; state.page = 1;
+        const s = $('#flowerSearch'); if (s) s.value = '';
+        renderCatalog();
+        showToast('Filtros limpos');
+        return;
+    }
+    if (t.closest('#clearBouquet')) { state.bouquet = {}; renderBouquet(); return; }
+    if (t.closest('#nextStep')) {
+        if (!bouquetCount()) { showToast('Escolha ao menos uma flor'); return; }
+        state.step = 2; renderBouquet();
+        return;
+    }
+    if (t.closest('#saveBouquet')) { saveBouquet(); return; }
+    if (t.closest('#restartQuiz')) {
+        state.quizIndex = 0; state.quizResult = null; state.quizScores = {};
+        renderQuiz();
+        return;
+    }
+    if (t.closest('#avatarBtn')) { openSidebar(); return; }
+});
+document.addEventListener('input', (event) => {
+    const t = event.target;
+    if (t.id === 'flowerSearch') { state.query = t.value; state.page = 1; renderCatalogResults(); }
+    if (t.id === 'bouquetMessage') {
+        state.message = t.value;
+        const counter = $('#msgCount');
+        if (counter) counter.textContent = t.value.length;
+    }
+});
+document.addEventListener('change', (event) => {
+    const t = event.target;
+    if (t.matches('[data-meaning]')) {
+        const m = t.dataset.meaning;
+        t.checked ? state.meanings.add(m) : state.meanings.delete(m);
+        state.page = 1;
+        renderCatalogResults();
+    }
+    if (t.id === 'occasionFilter') {
+        state.occasion = t.value;
+        state.page = 1;
+        renderCatalogResults();
+    }
+});
+if (sidebarBackdrop) sidebarBackdrop.addEventListener('click', closeSidebar);
+$$('#mobileNav a').forEach(a => a.addEventListener('click', closeMobileNav));
+document.addEventListener('focusin', (e) => {
+    if (!e.target.classList.contains('ut-selectable')) return;
+    $$('.soul-active').forEach(el => { if (el !== e.target) el.classList.remove('soul-active'); });
+    e.target.classList.add('soul-active');
+});
+/* --------------------------------------------------------------------------
+22. INIT
+-------------------------------------------------------------------------- */
+async function init() {
+    console.log("[init] ▶ Iniciando aplicação...");
+    loadState();
+    /* 1) Carrega catálogo do backend */
+    try {
+        const listaApi = await apiListarFlores();
+        if (listaApi && listaApi.length) {
+            const CATALOGO_LOCAL = [...FLOWERS];
+            FLOWERS.length = 0;
+            listaApi.forEach(f => {
+                const local = CATALOGO_LOCAL.find(x => x.name === f.nome);
+                FLOWERS.push({
+                    id: f.id, name: f.nome, sci: f.especie,
+                    emoji: f.emoji || local?.emoji || "🌸",
+                    file: f.file || local?.file || "",
+                    feelings: f.feelings?.length ? f.feelings : (local?.feelings || []),
+                    meanings: f.meanings?.length ? f.meanings : (local?.meanings || []),
+                    colors: f.colors?.length ? f.colors : [f.cor],
+                    category: f.category || local?.category || "",
+                    origin: f.origin || local?.origin || "",
+                    season: f.season || local?.season || "",
+                    about: f.descricao || local?.about || "",
+                    occasions: f.occasions?.length ? f.occasions : (local?.occasions || []),
+                    preco: f.preco,
+                    estoque: f.estoque
+                });
+            });
+            console.log(`[init] ✅ ${FLOWERS.length} flores carregadas do backend.`);
+        }
+    } catch (e) {
+        console.warn('[init] Backend offline, usando catálogo local:', e.message);
+    }
+    /* 2) Restaura sessão (BLINDADO) */
+    const token = getToken();
+    console.log("[init] Token presente?", !!token);
+    if (token) {
+        try {
+            const u = await apiMe();
+            console.log("[init] ✅ Sessão restaurada:", u);
+            state.user = {
+                name: u.nome || "",
+                email: u.email || "",
+                perfil: u.perfil || "usuario"
+            };
+            await sincronizarDadosUsuario();
+        } catch (err) {
+            console.warn("[init] ⚠️ Falha ao restaurar sessão:", err.message);
+            if (err.message.includes("401") ||
+                err.message.includes("expirado") ||
+                err.message.includes("inválido")) {
+                setToken(null);
+                state.user = null;
+            }
+        }
+    }
+    updateLoginUI();
+    if (state.user) document.body.classList.add('entered');
+    else { document.body.classList.remove('entered'); setupPortal(); }
+    if (!state.history.length) {
+        state.history = [{ text: 'Bem-vindo(a) ao Floriografia', date: 'Hoje' }];
+    }
+    saveState();
+    renderHome();
+    await runPreloader();
+    const hash = location.hash.replace('#', '') || 'inicio';
+    const valid = ['inicio', 'flores', 'significados', 'ocasioes', 'buque', 'jardim', 'quiz', 'admin'];
+    go(valid.includes(hash) ? hash : 'inicio');
+}
+document.addEventListener('DOMContentLoaded', init);
