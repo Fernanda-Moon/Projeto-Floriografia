@@ -1,4 +1,4 @@
-name: Deploy Floriografia Frontend to GitHub Pages
+name: TESTE FINAL - Floriografia Pages
 
 on:
   push:
