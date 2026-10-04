@@ -3,8 +3,10 @@
    ========================================================================== */
 const API_URL = (() => {
   const h = window.location.hostname;
+  // Desenvolvimento local
   if (h === "localhost" || h === "127.0.0.1") return "http://localhost:3000";
-  return window.location.origin;
+  // Produção — URL pública do backend hospedado
+  return "https://SEU-BACKEND-AQUI.onrender.com";
 })();
 
 const TOKEN_KEY = "floriografia:token";
@@ -17,7 +19,7 @@ async function request(path, { method = "GET", body, auth = true } = {}) {
   const res = await fetch(API_URL + path, {
     method,
     headers,
-    cache: "no-store", // ⭐ nunca cachear
+    cache: "no-store",
     body: body ? JSON.stringify(body) : undefined
   });
 
