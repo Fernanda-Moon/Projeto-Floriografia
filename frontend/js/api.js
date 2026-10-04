@@ -94,3 +94,4 @@ export const apiAdminAtualizarOcasiao = (id, dados) =>
   request(`/ocasioes/${id}`, { method: "PUT", body: dados });
 export const apiAdminExcluirOcasiao = (id) =>
   request(`/ocasioes/${id}`, { method: "DELETE" });
+
