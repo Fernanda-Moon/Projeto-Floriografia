@@ -476,10 +476,10 @@
 </aside>
 
 <script>
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/sw.js")
-      .then(() => console.log("✅ Service Worker registrado!"))
-      .catch((err) => console.warn("⚠️ SW não registrado:", err.message));
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js')
+      .then(() => console.log('SW registrado'))
+      .catch(err => console.warn('SW não registrado:', err.message));
   }
 </script>
 
