@@ -1,1 +1,16 @@
-
+{
+  "name": "Floriografia — A Linguagem das Flores",
+  "short_name": "Floriografia",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0510",
+  "theme_color": "#d4af37",
+  "description": "Descubra o significado por trás de cada flor.",
+  "icons": [
+    {
+      "src": "assets/Floriografia_logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
