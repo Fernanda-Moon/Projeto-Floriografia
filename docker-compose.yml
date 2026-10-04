@@ -1,1 +1,41 @@
+version: "3.8"
 
+services:
+  mongo:
+    image: mongo:6
+    container_name: floriografia_mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  backend:
+    build: ./backend
+    container_name: floriografia_backend
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongo
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/floriografia
+      - JWT_SECRET=seu_segredo_super_seguro
+      - PORT=3000
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+  frontend:
+    build: ./frontend
+    container_name: floriografia_frontend
+    restart: always
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+
+volumes:
+  mongo_data:
