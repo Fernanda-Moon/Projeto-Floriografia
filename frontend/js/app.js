@@ -359,354 +359,375 @@ function runPreloader(){
   }); 
 }
 
-/* ==========================================================================
-   5. ROTEADOR
-   ========================================================================== */
-function go(route, params = {}){
-  state.route = route;
-  $$('.view').forEach(v => v.classList.toggle('active', v.id === `view-${route}`));
-  $$('.nav-link').forEach(l => l.classList.toggle('active', l.dataset.route === route));
-  $$('.bottom-nav button').forEach(b => b.classList.toggle('active', b.dataset.route === route));
+/* -------------------------------------------------------------------------- 
+   5. ROTEADOR 
+   -------------------------------------------------------------------------- */ 
 
-  switch(route){
-    case 'inicio':       renderHome(); break;
-    case 'flores':       renderCatalog(); break;
-    case 'flor':         renderFlowerDetail(params.id || state.currentFlower); break;
-    case 'significados': renderMeanings(); break;
-    case 'ocasioes':     renderOccasions(); break;
-    case 'buque':        renderBouquet(); break;
-    case 'jardim':       renderGarden(); break;
-    case 'quiz':         renderQuiz(); break;
-    case 'admin':        renderAdmin(); break;
-  }
+function go(route, params = {}){ 
+  state.route = route; 
+  $ {route}`)); ('.𝑣𝑖𝑒𝑤').𝑓𝑜𝑟𝐸𝑎𝑐ℎ(𝑣=>𝑣.𝑐𝑙𝑎𝑠𝑠𝐿𝑖𝑠𝑡.𝑡𝑜𝑔𝑔𝑙𝑒('𝑎𝑐𝑡𝑖𝑣𝑒',𝑣.𝑖𝑑===`𝑣𝑖𝑒𝑤−
+  $$('.nav-link').forEach(l => l.classList.toggle('active', l.dataset.route === route)); 
+  $$('.bottom-nav button').forEach(b => b.classList.toggle('active', b.dataset.route === 
+route)); 
+ 
+  switch(route){ 
+    case 'inicio':       renderHome(); break; 
+    case 'flores':       renderCatalog(); break; 
+    case 'flor':         renderFlowerDetail(params.id || state.currentFlower); break; 
+    case 'significados': renderMeanings(); break; 
+    case 'ocasioes':     renderOccasions(); break; 
+    case 'buque':        renderBouquet(); break; 
+    case 'jardim':       renderGarden(); break; 
+    case 'quiz':         renderQuiz(); break; 
+    case 'admin':        renderAdmin(); break; 
+  } 
+ 
+  closeSidebar(); 
+  closeMobileNav(); 
+ 
+  const flavor = $('.view.active [data-flavor]'); 
+  if(flavor) typewrite(flavor, randomFlavor()); 
+  setTimeout(() => typewriteAll($('.view.active')), 60); 
+  resetSoulFocus(); 
+ 
+  if(history.replaceState){ 
+    history.replaceState(null, '', route === 'inicio' ? '#inicio' : `#${route}`); 
+  } 
+  window.scrollTo({ top:0, behavior:'smooth' }); 
+} 
+ 
+/* -------------------------------------------------------------------------- 
+   6. SOUL (navegação por teclado) 
+   -------------------------------------------------------------------------- */ 
 
-  closeSidebar();
-  closeMobileNav();
+function soulTargets(){ 
+  const view = $('.view.active'); 
+  if(!view) return []; 
+  return $$('.ut-selectable', view).filter(el => 
+    !el.disabled && el.offsetParent !== null && !el.classList.contains('no-soul')); 
+} 
+let soulIndex = 0; 
+function resetSoulFocus(){ 
+  soulIndex = 0; 
+  $$('.soul-active').forEach(el => el.classList.remove('soul-active')); 
+} 
+function moveSoul(direction){ 
+  const targets = soulTargets(); 
+  if(!targets.length) return; 
+  const cur = targets.indexOf(document.activeElement); 
+  if(cur === -1) soulIndex = 0; 
+  else soulIndex = (cur + direction + targets.length) % targets.length; 
+  $$('.soul-active').forEach(el => el.classList.remove('soul-active')); 
+  const next = targets[soulIndex]; 
+  next.classList.add('soul-active'); 
+  next.focus({ preventScroll:false }); 
+  next.animate( 
+    [{transform:'translateX(0)'},{transform:'translateX(3px)'},{transform:'translateX(0)'}], 
+    {duration:120, easing:'steps(2)'} 
+  ); 
+} 
+ 
+document.addEventListener('keydown', (e) => { 
+  if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName) && e.key 
+!== 'Escape') return; 
+  if(e.key === 'ArrowDown' || e.key === 'ArrowRight'){ e.preventDefault(); moveSoul(1); 
+return; } 
+  if(e.key === 'ArrowUp'   || e.key === 'ArrowLeft'){  e.preventDefault(); moveSoul(-1); return; 
+} 
+  if(e.key === 'z' || e.key === 'Z' || e.key === 'Enter'){ 
+    const active = document.activeElement; 
+    if(active && active.classList.contains('ut-selectable')){ e.preventDefault(); active.click(); } 
+    return; 
+  } 
+  if(e.key === 'Escape'){ 
+    closeSidebar(); 
+    closeMobileNav(); 
+  } 
+}); 
+ 
+/* -------------------------------------------------------------------------- 
+   7. HOME 
+   -------------------------------------------------------------------------- */ 
 
-  const flavor = $('.view.active [data-flavor]');
-  if(flavor) typewrite(flavor, randomFlavor());
-  setTimeout(() => typewriteAll($('.view.active')), 60);
-  resetSoulFocus();
+function renderHome(){ 
+  const stats = { 
+    flowers:   FLOWERS.length, 
+    feelings:  FEELINGS.length, 
+    occasions: OCCASIONS.length 
+  }; 
+  document.querySelectorAll('[data-stat]').forEach(el => { 
+    const key = el.dataset.stat; 
+    if(stats[key] != null) el.textContent = stats[key]; 
+  }); 
+ 
+  const row = $('#feelingsRow'); 
+  if(!row) return; 
+ 
+  row.innerHTML = FEELINGS.map(f => ` 
+    <button class="feeling-card ut-selectable" type="button" data-feeling="𝑓.𝑖𝑑"𝑡𝑖𝑡𝑙𝑒="
+{f.desc}"> 
+      <span class="ico-wrap" data-emoji=" {f.color}; text-shadow:0 0 𝑓.𝑒𝑚𝑜𝑗𝑖"𝑠𝑡𝑦𝑙𝑒="𝑐𝑜𝑙𝑜𝑟:
+14px {f.emoji}</span> 𝑓.𝑐𝑜𝑙𝑜𝑟;">
+      <strong>${f.label}</strong> 
+      <small>${f.desc}</small> 
+    </button> 
+  `).join(''); 
+} 
+ 
+/* -------------------------------------------------------------------------- 
+   8. CATÁLOGO 
+   -------------------------------------------------------------------------- */ 
 
-  if(history.replaceState){
-    history.replaceState(null, '', route === 'inicio' ? '#inicio' : `#${route}`);
-  }
-  window.scrollTo({ top:0, behavior:'smooth' });
-}
+function matchesColor(flower){ 
+  if(!state.colors.size) return true; 
+  return flower.colors.some(c => state.colors.has(c)); 
+} 
+function matchesMeaning(flower){ 
+  if(!state.meanings.size) return true; 
+  const pool = [...flower.feelings, ...flower.meanings, flower.category].join(' ').toLowerCase(); 
+  return [...state.meanings].some(m => pool.includes(m.toLowerCase())); 
+} 
+function matchesOccasion(flower){ 
+  if(state.occasion === 'Todas') return true; 
+  return flower.occasions.includes(state.occasion); 
+} 
+function getFilteredFlowers(){ 
+  const q = state.query.trim().toLowerCase(); 
+  return FLOWERS.filter(f => { 
+    if(q){ 
+      const hay = `${f.name} ${f.sci} ${f.meanings.join(' ')} ${f.category} ${f.feelings.join(' 
+')}`.toLowerCase(); 
+      if(!hay.includes(q)) return false; 
+    } 
+    return matchesColor(f) && matchesMeaning(f) && matchesOccasion(f); 
+  }); 
+} 
+ 
+function renderCatalog(){ 
+  renderColorFilters(); 
+  renderMeaningFilters(); 
+  renderOccasionSelect(); 
+  renderCatalogResults(); 
+} 
+ 
+function renderCatalogResults(){ 
+  const list  = getFilteredFlowers(); 
+  const total = list.length; 
+  const pages = Math.max(1, Math.ceil(total / state.perPage)); 
+  state.page = Math.min(state.page, pages); 
+  const start = (state.page - 1) * state.perPage; 
+  const slice = list.slice(start, start + state.perPage); 
+ 
+  const grid = $('#flowerGrid'); 
+  if(!grid) return; 
+  grid.innerHTML = slice.length 
+    ? slice.map(flowerCardHTML).join('') 
+    : `<div class="empty-state" style="grid-column:1/-1"> 
+         <span class="ico">✖</span> 
+         * Nenhuma flor encontrada.<br>Tente outros filtros. 
+       </div>`; 
+ 
+  const rc = $('#resultCount'); 
+  if(rc) rc.textContent = `* {total === 1 ? '' : 'es'} encontrada${total === 1 ? '' : 's'}`; 𝑡𝑜𝑡𝑎𝑙𝑓𝑙𝑜𝑟
+  renderPagination(pages); 
+} 
+ 
+function flowerCardHTML(f){ 
+  const isFav = state.favorites.has(f.id); 
+  return ` 
+    <article class="flower-card ut-selectable" data-flower-open="${f.id}" tabindex="0" 
+             role="button" aria-label="Ver detalhes de ${f.name}"> 
+      <button class="fav-btn ${isFav ? 'on' : ''}" type="button" 
+              data-fav="${f.id}" aria-label="Favoritar ${f.name}">♥</button> 
+      ${flowerArt(f, 56)} 
+      <h3>${f.name}</h3> 
+      <p class="flower-meanings">${f.meanings.join(' • ')}</p> 
+      <div class="flower-tags"> 
+        ${f.feelings.slice(0, 2).map(x => `<span class="tag hot">${x}</span>`).join('')} 
+      </div> 
+    </article>`; 
+} 
+ 
+function renderColorFilters(){ 
+  const wrap = $('#colorFilters'); 
+  if(!wrap) return; 
+ 
+  const counts = {}; 
+  COLORS.forEach(c => { counts[c.id] = FLOWERS.filter(f => f.colors.includes(c.id)).length; 
+}); 
+ 
+  const visibleColors = COLORS.filter(c => counts[c.id] > 0); 
+  const validIds = new Set(visibleColors.map(c => c.id)); 
+  [...state.colors].forEach(id => { if(!validIds.has(id)) state.colors.delete(id); }); 
+ 
+  wrap.innerHTML = visibleColors.map(c => { 
+    const on = state.colors.has(c.id); 
+    const n  = counts[c.id]; 
+    return ` 
+      <button class="color-chip ${on ? 'on' : ''}" type="button" 
+              data-color=" {on}" 𝑐.𝑖𝑑"𝑎𝑟𝑖𝑎−𝑝𝑟𝑒𝑠𝑠𝑒𝑑="
+              title=" {n} flor${n === 1 ? '' : 'es'})" 𝑐.𝑙𝑎𝑏𝑒𝑙(
+              style="--chip-color:${c.hex}"> 
+        <span>♥</span> 
+        <b>${n}</b> 
+      </button>`; 
+  }).join(''); 
+} 
+ 
+function renderMeaningFilters(){ 
+  const wrap = $('#meaningFilters'); 
+  if(!wrap) return; 
+  wrap.innerHTML = MEANING_FILTERS.map(m => ` 
+    <label class="check-item"> 
+      <input type="checkbox" data-meaning="${m}" ${state.meanings.has(m) ? 'checked' : ''}> 
+      <i>♥</i> ${m} 
+    </label> 
+  `).join(''); 
+} 
+ 
+function renderOccasionSelect(){ 
+  const sel = $('#occasionFilter'); 
+  if(!sel) return; 
+  sel.innerHTML = ['Todas', ...OCCASIONS.map(o => o.label)] 
+    .map(o => `<option value="${o}" {o}</option>`) 𝑠𝑡𝑎𝑡𝑒.𝑜𝑐𝑐𝑎𝑠𝑖𝑜𝑛===𝑜?'𝑠𝑒𝑙𝑒𝑐𝑡𝑒𝑑':''>
+    .join(''); 
+} 
+ 
+function renderPagination(pages){ 
+  const el = $('#pagination'); 
+  if(!el) return; 
+  if(pages <= 1){ el.innerHTML = ''; return; } 
+  let html = `<button class="page-btn ut-selectable" data-page="${state.page - 1}" 
+${state.page === 1 ? 'disabled' : ''}>‹</button>`; 
+  for(let i = 1; i <= pages; i++){ 
+    html += `<button class="page-btn ut-selectable 
+{i}">${i}</button>`; 𝑖===𝑠𝑡𝑎𝑡𝑒.𝑝𝑎𝑔𝑒?'𝑎𝑐𝑡𝑖𝑣𝑒':''"𝑑𝑎𝑡𝑎−𝑝𝑎𝑔𝑒="
+  } 
+  html += `<button class="page-btn ut-selectable" data-page="${state.page + 1}" 
+${state.page === pages ? 'disabled' : ''}>›</button>`; 
+  el.innerHTML = html; 
+} 
+ 
+/* -------------------------------------------------------------------------- 
+   9. DETALHE DA FLOR 
+   -------------------------------------------------------------------------- */ 
 
-/* ==========================================================================
-   6. SOUL (navegação por teclado)
-   ========================================================================== */
-function soulTargets(){
-  const view = $('.view.active');
-  if(!view) return [];
-  return $$('.ut-selectable', view).filter(el =>
-    !el.disabled && el.offsetParent !== null && !el.classList.contains('no-soul'));
-}
-let soulIndex = 0;
-function resetSoulFocus(){
-  soulIndex = 0;
-  $$('.soul-active').forEach(el => el.classList.remove('soul-active'));
-}
-function moveSoul(direction){
-  const targets = soulTargets();
-  if(!targets.length) return;
-  const cur = targets.indexOf(document.activeElement);
-  if(cur === -1) soulIndex = 0;
-  else soulIndex = (cur + direction + targets.length) % targets.length;
-  $$('.soul-active').forEach(el => el.classList.remove('soul-active'));
-  const next = targets[soulIndex];
-  next.classList.add('soul-active');
-  next.focus({ preventScroll:false });
-  next.animate(
-    [{transform:'translateX(0)'},{transform:'translateX(3px)'},{transform:'translateX(0)'}],
-    {duration:120, easing:'steps(2)'}
-  );
-}
+function renderFlowerDetail(id){ 
+  const f = flowerById(id); 
+  if(!f){ go('flores'); return; } 
+  state.currentFlower = id; 
+  const isFav = state.favorites.has(id); 
+ 
+  const occasionChips = f.occasions.map(label => { 
+    const occ = OCCASIONS.find(o => o.label === label); 
+    return `<button type="button" class="ut-selectable" data-occasion-open="${label}"> 
+      <span aria-hidden="true"> {label} 𝑜𝑐𝑐?𝑜𝑐𝑐.𝑒𝑚𝑜𝑗𝑖:'🌸'</𝑠𝑝𝑎𝑛>
+    </button>`; 
+  }).join(''); 
+ 
+  $('#view-flor').innerHTML = ` 
+    <nav class="breadcrumb" aria-label="Você está em"> 
+      <button type="button" class="ut-selectable" data-route="flores">* Flores</button> 
+      <span>›</span> 
+      <span>${f.name}</span> 
+    </nav> 
+ 
+    <div class="detail-layout"> 
+      <div class="detail-visual ut-box">${flowerArt(f, 170)}</div> 
+ 
+      <div class="detail-info"> 
+        <div class="detail-header"> 
+          <div> 
+            <h2>${f.name}</h2> 
+            <p class="sci">${f.sci}</p> 
+          </div> 
+          <button class="ut-btn ut-selectable 
+{f.id}"> 𝑖𝑠𝐹𝑎𝑣?'𝑠𝑒𝑙𝑒𝑐𝑡𝑒𝑑':''"𝑡𝑦𝑝𝑒="𝑏𝑢𝑡𝑡𝑜𝑛"𝑑𝑎𝑡𝑎−𝑓𝑎𝑣="
+            <span class="heart">♥</span> ${isFav ? 'Favoritada' : 'Favoritar'} 
+          </button> 
+        </div> 
+ 
+        <section class="block"> 
+          <h3>Significados</h3> 
+          <ul class="check-list">${f.meanings.map(m => `<li>${m}</li>`).join('')}</ul> 
+        </section> 
+ 
+        <section class="block"> 
+          <h3>Cores</h3> 
+          <div class="color-dots"> 
+            ${f.colors.map(c => { 
+              const col = COLORS.find(x => x.id === c); 
+              return `<span class="color-dot" style="background:𝑐𝑜𝑙?𝑐𝑜𝑙.ℎ𝑒𝑥:'#𝑓𝑓𝑓'"𝑡𝑖𝑡𝑙𝑒="
+{c}"></span>`; 
+            }).join('')} 
+          </div> 
+        </section> 
+ 
+        <section class="block"> 
+          <h3>Informações</h3> 
+          <dl class="meta-grid"> 
+            <div><dt>Categoria</dt><dd>${f.category}</dd></div> 
+            <div><dt>Origem</dt><dd>${f.origin}</dd></div> 
+            <div><dt>Época</dt><dd>${f.season}</dd></div> 
+            <div><dt>Preço</dt><dd>R$ ${(f.preco || 0).toFixed(2)}</dd></div> 
+          </dl> 
+        </section> 
+ 
+        <section class="block"> 
+          <h3>Sobre a flor</h3> 
+          <p class="about-text">${f.about}</p> 
+        </section> 
+ 
+        <section class="block"> 
+          <h3>Ocasiões ideais</h3> 
+          <div class="occasion-mini">${occasionChips}</div> 
+        </section> 
+ 
+        <div class="detail-actions"> 
+          <button class="ut-btn ut-selectable" type="button" data-add-bouquet="${f.id}"> 
+            <span class="heart">♥</span> ADICIONAR AO BUQUÊ 
+          </button> 
+          <button class="ut-btn ut-selectable" type="button" data-route="buque"> 
+            IR PARA OFICINA → 
+          </button> 
+        </div> 
+      </div> 
+    </div> 
+  `; 
+} 
+ 
+/* -------------------------------------------------------------------------- 
+   10. SIGNIFICADOS 
+   -------------------------------------------------------------------------- */ 
 
-document.addEventListener('keydown', (e) => {
-  if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName) && e.key !== 'Escape') return;
-  if(e.key === 'ArrowDown' || e.key === 'ArrowRight'){ e.preventDefault(); moveSoul(1); return; }
-  if(e.key === 'ArrowUp'   || e.key === 'ArrowLeft'){  e.preventDefault(); moveSoul(-1); return; }
-  if(e.key === 'z' || e.key === 'Z' || e.key === 'Enter'){
-    const active = document.activeElement;
-    if(active && active.classList.contains('ut-selectable')){ e.preventDefault(); active.click(); }
-    return;
-  }
-  if(e.key === 'Escape'){
-    closeSidebar();
-    closeMobileNav();
-  }
-});
-
-/* ==========================================================================
-   7. HOME
-   ========================================================================== */
-function renderHome(){
-  const stats = { flowers: FLOWERS.length, feelings: FEELINGS.length, occasions: OCCASIONS.length };
-  document.querySelectorAll('[data-stat]').forEach(el => {
-    const key = el.dataset.stat;
-    if(stats[key] != null) el.textContent = stats[key];
-  });
-
-  const row = $('#feelingsRow');
-  if(!row) return;
-
-  row.innerHTML = FEELINGS.map(f => `
-    <button class="feeling-card ut-selectable" type="button" data-feeling="${f.id}" title="${f.desc}">
-      <span class="ico-wrap" style="color:${f.color}; text-shadow:0 0 14px ${f.color}">${f.emoji}</span>
-      <strong>${f.label}</strong>
-      <small>${f.desc}</small>
-    </button>
-  `).join('');
-}
-
-/* ==========================================================================
-   8. CATÁLOGO
-   ========================================================================== */
-function matchesColor(flower){
-  if(!state.colors.size) return true;
-  return flower.colors.some(c => state.colors.has(c));
-}
-function matchesMeaning(flower){
-  if(!state.meanings.size) return true;
-  const pool = [...flower.feelings, ...flower.meanings, flower.category].join(' ').toLowerCase();
-  return [...state.meanings].some(m => pool.includes(m.toLowerCase()));
-}
-function matchesOccasion(flower){
-  if(state.occasion === 'Todas') return true;
-  return flower.occasions.includes(state.occasion);
-}
-function getFilteredFlowers(){
-  const q = state.query.trim().toLowerCase();
-  return FLOWERS.filter(f => {
-    if(q){
-      const hay = `${f.name} ${f.sci} ${f.meanings.join(' ')} ${f.category} ${f.feelings.join(' ')}`.toLowerCase();
-      if(!hay.includes(q)) return false;
-    }
-    return matchesColor(f) && matchesMeaning(f) && matchesOccasion(f);
-  });
-}
-
-function renderCatalog(){
-  renderColorFilters();
-  renderMeaningFilters();
-  renderOccasionSelect();
-  renderCatalogResults();
-}
-
-function renderCatalogResults(){
-  const list  = getFilteredFlowers();
-  const total = list.length;
-  const pages = Math.max(1, Math.ceil(total / state.perPage));
-  state.page = Math.min(state.page, pages);
-  const start = (state.page - 1) * state.perPage;
-  const slice = list.slice(start, start + state.perPage);
-
-  const grid = $('#flowerGrid');
-  if(!grid) return;
-  grid.innerHTML = slice.length
-    ? slice.map(flowerCardHTML).join('')
-    : `<div class="empty-state" style="grid-column:1/-1">
-         <span class="ico">✖</span>
-         * Nenhuma flor encontrada.<br>Tente outros filtros.
-       </div>`;
-
-  const rc = $('#resultCount');
-  if(rc) rc.textContent = `${total} flor${total === 1 ? '' : 'es'} encontrada${total === 1 ? '' : 's'}`;
-  renderPagination(pages);
-}
-
-function flowerCardHTML(f){
-  const isFav = state.favorites.has(f.id);
-  return `
-    <article class="flower-card ut-selectable" data-flower-open="${f.id}" tabindex="0"
-             role="button" aria-label="Ver detalhes de ${f.name}">
-      <button class="fav-btn ${isFav ? 'on' : ''}" type="button"
-              data-fav="${f.id}" aria-label="Favoritar ${f.name}">♥</button>
-      ${flowerArt(f, 56)}
-      <h3>${f.name}</h3>
-      <p class="flower-meanings">${f.meanings.join(' • ')}</p>
-      <div class="flower-tags">
-        ${f.feelings.slice(0, 2).map(x => `<span class="tag hot">${x}</span>`).join('')}
-      </div>
-    </article>`;
-}
-
-function renderColorFilters(){
-  const wrap = $('#colorFilters');
-  if(!wrap) return;
-
-  const counts = {};
-  COLORS.forEach(c => { counts[c.id] = FLOWERS.filter(f => f.colors.includes(c.id)).length; });
-
-  const visibleColors = COLORS.filter(c => counts[c.id] > 0);
-  const validIds = new Set(visibleColors.map(c => c.id));
-  [...state.colors].forEach(id => { if(!validIds.has(id)) state.colors.delete(id); });
-
-  wrap.innerHTML = visibleColors.map(c => {
-    const on = state.colors.has(c.id);
-    const n  = counts[c.id];
-    return `
-      <button class="color-chip ${on ? 'on' : ''}" type="button"
-              data-color="${c.id}" aria-pressed="${on}"
-              title="${c.label} (${n} flor${n === 1 ? '' : 'es'})"
-              style="--chip-color:${c.hex}">
-        <span>♥</span>
-        <b>${n}</b>
-      </button>`;
-  }).join('');
-}
-
-function renderMeaningFilters(){
-  const wrap = $('#meaningFilters');
-  if(!wrap) return;
-  wrap.innerHTML = MEANING_FILTERS.map(m => `
-    <label class="check-item">
-      <input type="checkbox" data-meaning="${m}" ${state.meanings.has(m) ? 'checked' : ''}>
-      <i>♥</i> ${m}
-    </label>
-  `).join('');
-}
-
-function renderOccasionSelect(){
-  const sel = $('#occasionFilter');
-  if(!sel) return;
-  sel.innerHTML = ['Todas', ...OCCASIONS.map(o => o.label)]
-    .map(o => `<option value="${o}" ${state.occasion === o ? 'selected' : ''}>${o}</option>`)
-    .join('');
-}
-
-function renderPagination(pages){
-  const el = $('#pagination');
-  if(!el) return;
-  if(pages <= 1){ el.innerHTML = ''; return; }
-  let html = `<button class="page-btn ut-selectable" data-page="${state.page - 1}" ${state.page === 1 ? 'disabled' : ''}>‹</button>`;
-  for(let i = 1; i <= pages; i++){
-    html += `<button class="page-btn ut-selectable ${i === state.page ? 'active' : ''}" data-page="${i}">${i}</button>`;
-  }
-  html += `<button class="page-btn ut-selectable" data-page="${state.page + 1}" ${state.page === pages ? 'disabled' : ''}>›</button>`;
-  el.innerHTML = html;
-}
-
-/* ==========================================================================
-   9. DETALHE DA FLOR
-   ========================================================================== */
-function renderFlowerDetail(id){
-  const f = flowerById(id);
-  if(!f){ go('flores'); return; }
-  state.currentFlower = id;
-  const isFav = state.favorites.has(id);
-
-  const occasionChips = f.occasions.map(label => {
-    const occ = OCCASIONS.find(o => o.label === label);
-    return `<button type="button" class="ut-selectable" data-occasion-open="${label}">
-      <span aria-hidden="true">${occ ? occ.emoji : '🌸'}</span> ${label}
-    </button>`;
-  }).join('');
-
-  $('#view-flor').innerHTML = `
-    <nav class="breadcrumb" aria-label="Você está em">
-      <button type="button" class="ut-selectable" data-route="flores">* Flores</button>
-      <span>›</span>
-      <span>${f.name}</span>
-    </nav>
-
-    <div class="detail-layout">
-      <div class="detail-visual ut-box">${flowerArt(f, 170)}</div>
-
-      <div class="detail-info">
-        <div class="detail-header">
-          <div>
-            <h2>${f.name}</h2>
-            <p class="sci">${f.sci}</p>
-          </div>
-          <button class="ut-btn ut-selectable ${isFav ? 'selected' : ''}" type="button" data-fav="${f.id}">
-            <span class="heart">♥</span> ${isFav ? 'Favoritada' : 'Favoritar'}
-          </button>
-        </div>
-
-        <section class="block">
-          <h3>Significados</h3>
-          <ul class="check-list">${f.meanings.map(m => `<li>${m}</li>`).join('')}</ul>
-        </section>
-
-        <section class="block">
-          <h3>Cores</h3>
-          <div class="color-dots">
-            ${f.colors.map(c => {
-              const col = COLORS.find(x => x.id === c);
-              return `<span class="color-dot" style="background:${col ? col.hex : '#fff'}" title="${c}"></span>`;
-            }).join('')}
-          </div>
-        </section>
-
-        <section class="block">
-          <h3>Informações</h3>
-          <dl class="meta-grid">
-            <div><dt>Categoria</dt><dd>${f.category}</dd></div>
-            <div><dt>Origem</dt><dd>${f.origin}</dd></div>
-            <div><dt>Época</dt><dd>${f.season}</dd></div>
-            <div><dt>Preço</dt><dd>R$ ${(f.preco || 0).toFixed(2)}</dd></div>
-          </dl>
-        </section>
-
-        <section class="block">
-          <h3>Sobre a flor</h3>
-          <p class="about-text">${f.about}</p>
-        </section>
-
-        <section class="block">
-          <h3>Ocasiões ideais</h3>
-          <div class="occasion-mini">${occasionChips}</div>
-        </section>
-
-        <div class="detail-actions">
-          <button class="ut-btn ut-selectable" type="button" data-add-bouquet="${f.id}">
-            <span class="heart">♥</span> ADICIONAR AO BUQUÊ
-          </button>
-          <button class="ut-btn ut-selectable" type="button" data-route="buque">
-            IR PARA OFICINA →
-          </button>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-/* ==========================================================================
-   10. SIGNIFICADOS
-   ========================================================================== */
-function renderMeanings(){
-  const wrap = $('#meaningGroups');
-  if(!wrap) return;
-  wrap.innerHTML = FEELINGS.map(feel => {
-    const flowers = FLOWERS.filter(f => f.feelings.includes(feel.id));
-    if(!flowers.length) return '';
-    return `
-      <section class="meaning-block ut-box">
-        <header>
-          <span class="ico" style="color:${feel.color}">${feel.emoji}</span>
-          <div>
-            <h2>${feel.label}
-              <small style="color:#d4b8c8;font-family:var(--font-dialogue);font-size:15px">
-                (${flowers.length} flores)
-              </small>
-            </h2>
-            <p>${feel.desc}</p>
-          </div>
-        </header>
-        <div class="mini-flower-row">
-          ${flowers.map(f => `
-            <button class="mini-flower ut-selectable" type="button" data-flower-open="${f.id}">
-              ${flowerArt(f, 32)}
-              <span><strong>${f.name}</strong><small>${f.meanings[0] || ''}</small></span>
-            </button>
-          `).join('')}
-        </div>
-      </section>`;
-  }).join('');
-}
+function renderMeanings(){ 
+  const wrap = $('#meaningGroups'); 
+  if(!wrap) return; 
+  wrap.innerHTML = FEELINGS.map(feel => { 
+    const flowers = FLOWERS.filter(f => f.feelings.includes(feel.id)); 
+    if(!flowers.length) return ''; 
+    return ` 
+      <section class="meaning-block ut-box"> 
+        <header> 
+          <span class="ico" style="color: {feel.emoji}</span> 𝑓𝑒𝑒𝑙.𝑐𝑜𝑙𝑜𝑟">
+          <div> 
+            <h2>
+𝑓𝑒𝑒𝑙.𝑙𝑎𝑏𝑒𝑙<𝑠𝑚𝑎𝑙𝑙𝑠𝑡𝑦𝑙𝑒="𝑐𝑜𝑙𝑜𝑟:#𝑑4𝑏8𝑐8;𝑓𝑜𝑛𝑡−𝑓𝑎𝑚𝑖𝑙𝑦:𝑣𝑎𝑟(−−𝑓𝑜𝑛𝑡−𝑑𝑖𝑎𝑙𝑜𝑔𝑢𝑒);𝑓𝑜𝑛𝑡−𝑠𝑖𝑧𝑒:15𝑝𝑥;
+{flowers.length} flores)</small></h2> 
+            <p>${feel.desc}</p> 
+          </div> 
+        </header> 
+        <div class="mini-flower-row"> 
+          ${flowers.map(f => ` 
+            <button class="mini-flower ut-selectable" type="button" data-flower-open="${f.id}"> 
+              ${flowerArt(f, 32)} 
+              <span><strong> {f.meanings[0]}</small></span> 𝑓.𝑛𝑎𝑚𝑒</𝑠𝑡𝑟𝑜𝑛𝑔><𝑠𝑚𝑎𝑙𝑙>
+            </button> 
+          `).join('')} 
+        </div> 
+      </section>`; 
+  }).join(''); 
+} 
 
 /* ==========================================================================
    11. OCASIÕES
