@@ -616,68 +616,38 @@ ul,ol{ margin:0; padding:0; list-style:none; }
 .filter-group h4{ font-family:var(--font-pixel); font-size:10px; letter-spacing:2px; color:var(--gold-2); margin-bottom:10px; }
 .filter-group h4::before{ content:"♥ "; color:var(--pink); font-family:var(--font-dialogue); font-size:14px; }
 
-/* ---------- COLOR CHIPS (dinâmico, só mostra cores existentes) ---------- */
-.color-filters{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  padding:4px 0;
-}
+.color-filters{ display:flex; gap:10px; flex-wrap:wrap; padding:4px 0; }
 .color-chip{
   position:relative;
-  width:44px;
-  height:44px;
-  display:grid;
-  place-items:center;
+  width:44px; height:44px;
+  display:grid; place-items:center;
   background:rgba(10,2,16,.85);
   border:2px solid rgba(224,187,77,.35);
   border-radius:12px;
   cursor:pointer;
-  transition:
-    transform .15s ease,
-    border-color .15s ease,
-    background .15s ease,
-    box-shadow .15s ease;
+  transition:transform .15s ease, border-color .15s ease, background .15s ease, box-shadow .15s ease;
 }
 .color-chip > span{
-  font-size:24px;
-  line-height:1;
+  font-size:24px; line-height:1;
   color:var(--chip-color, #fff);
   filter:drop-shadow(0 0 5px var(--chip-color, #fff));
   transition:transform .15s ease, filter .15s ease;
 }
 .color-chip > b{
-  position:absolute;
-  right:-4px;
-  top:-4px;
-  min-width:18px;
-  height:18px;
-  padding:0 4px;
-  display:grid;
-  place-items:center;
-  font-family:var(--font-pixel);
-  font-size:8px;
-  font-weight:400;
-  color:#1a0a1a;
-  background:var(--gold-2);
-  border:1px solid #8b6b3d;
-  border-radius:9px;
+  position:absolute; right:-4px; top:-4px;
+  min-width:18px; height:18px; padding:0 4px;
+  display:grid; place-items:center;
+  font-family:var(--font-pixel); font-size:8px; font-weight:400;
+  color:#1a0a1a; background:var(--gold-2);
+  border:1px solid #8b6b3d; border-radius:9px;
   box-shadow:0 0 6px rgba(212,175,55,.8);
-  opacity:0;
-  transform:scale(.6);
+  opacity:0; transform:scale(.6);
   transition:opacity .15s ease, transform .15s ease;
   pointer-events:none;
 }
-.color-chip:hover{
-  border-color:var(--gold-2);
-  transform:translateY(-2px);
-}
-.color-chip:hover > span{
-  transform:scale(1.15);
-  filter:drop-shadow(0 0 10px var(--chip-color, #fff)) brightness(1.15);
-}
+.color-chip:hover{ border-color:var(--gold-2); transform:translateY(-2px); }
+.color-chip:hover > span{ transform:scale(1.15); filter:drop-shadow(0 0 10px var(--chip-color, #fff)) brightness(1.15); }
 .color-chip:hover > b{ opacity:.9; transform:scale(1); }
-
 .color-chip.on{
   border-color:var(--gold-2);
   background:linear-gradient(180deg, rgba(212,175,55,.28), rgba(212,175,55,.08));
@@ -697,10 +667,8 @@ ul,ol{ margin:0; padding:0; list-style:none; }
   animation:chipPulse 1.6s ease-in-out infinite;
 }
 .color-chip.on > b{
-  opacity:1;
-  transform:scale(1);
-  background:var(--pink);
-  color:#2a1008;
+  opacity:1; transform:scale(1);
+  background:var(--pink); color:#2a1008;
   box-shadow:0 0 10px var(--pink);
 }
 @keyframes chipPulse{
@@ -1554,7 +1522,6 @@ body.entered .portal{ display:none !important; }
   .soul-global{ display:none; }
   .toast{ bottom:96px; }
 
-  /* Portal mobile */
   .portal{ padding:10px; }
   .grimoire{
     width:96vw; height:auto;
@@ -1609,15 +1576,52 @@ body.entered .portal{ display:none !important; }
 }
 .admin-table td .ut-btn{ padding:6px 10px; font-size:9px; }
 
+/* ------------------------------------------------------------------
+   MODAL ADMIN — Formulários grandes e confortáveis
+   ------------------------------------------------------------------ */
 .admin-modal-backdrop{
   position:fixed; inset:0; z-index:500;
   display:grid; place-items:center; padding:20px;
   background:rgba(10,2,16,.9);
+  overflow-y:auto;
 }
 .admin-modal{
-  width:min(520px,100%); padding:28px;
-  max-height:90vh; overflow-y:auto;
+  width:min(640px, 100%);
+  padding:28px;
+  max-height:90vh;
+  overflow-y:auto;
   animation:viewIn .2s steps(4);
+}
+.admin-modal .page-field{
+  margin-bottom:14px;
+}
+.admin-modal .page-field textarea.page-input{
+  resize:vertical;
+  min-height:90px;
+  font-family:var(--font-dialogue);
+  font-size:18px;
+  line-height:1.4;
+  border:2px solid #8b6b3d;
+  border-radius:0;
+  padding:10px 12px;
+}
+.admin-modal .page-field textarea.page-input:focus{
+  border-color:#5a3a1a;
+}
+.admin-modal .page-field select.page-input{
+  cursor:pointer;
+  appearance:none;
+  -webkit-appearance:none;
+  -moz-appearance:none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #8b6b3d 50%),
+    linear-gradient(135deg, #8b6b3d 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) 50%,
+    calc(100% - 12px) 50%;
+  background-size:6px 6px, 6px 6px;
+  background-repeat:no-repeat;
+  padding-right:36px;
 }
 
 .admin-btn{
@@ -1630,6 +1634,9 @@ body.entered .portal{ display:none !important; }
   .admin-table{ font-size:14px; }
   .admin-table th, .admin-table td{ padding:6px 4px; }
   .admin-table td .ut-btn{ padding:4px 6px; font-size:8px; }
+
+  .admin-modal{ padding:20px; }
+  .admin-modal .page-field textarea.page-input{ font-size:16px; }
 }
 
 @media (max-width:480px){
