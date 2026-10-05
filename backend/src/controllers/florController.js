@@ -41,36 +41,47 @@ const buscarFlor = async (req, res) => {
 const criarFlor = async (req, res) => {
     try {
         const {
-            nome,
-            especie,
-            cor,
-            descricao,
-            preco,
-            estoque,
-            significados,
-            ocasioes
+            nome, especie, cor, emoji, file,
+            feelings, meanings, colors,
+            category, origin, season,
+            occasions, descricao,
+            preco, estoque,
+            significados, ocasioes
         } = req.body;
 
+        // Validação dos obrigatórios
         if (
-            !nome ||
-            !especie ||
-            !cor ||
-            preco === undefined ||
-            estoque === undefined
+            !nome || !especie || !cor ||
+            preco === undefined || estoque === undefined
         ) {
             return res.status(400).json({
-                mensagem:
-                    "Nome, espécie, cor, preço e estoque são obrigatórios."
+                mensagem: "Nome, espécie, cor, preço e estoque são obrigatórios."
             });
         }
+
+        // Normaliza arrays (garante que sempre são arrays)
+        const normalizarArray = (v) => {
+            if (Array.isArray(v)) return v.filter(Boolean);
+            if (typeof v === "string") return v.split(",").map(s => s.trim()).filter(Boolean);
+            return [];
+        };
 
         const flor = await Flor.create({
             nome,
             especie,
             cor,
-            descricao,
-            preco,
-            estoque,
+            emoji:     emoji     || "🌸",
+            file:      file      || "",
+            feelings:  normalizarArray(feelings),
+            meanings:  normalizarArray(meanings),
+            colors:    normalizarArray(colors).length ? normalizarArray(colors) : [cor],
+            category:  category  || "",
+            origin:    origin    || "",
+            season:    season    || "",
+            occasions: normalizarArray(occasions),
+            descricao: descricao || "",
+            preco:     Number(preco)   || 0,
+            estoque:   Number(estoque) || 0,
             significados,
             ocasioes
         });
